@@ -12,8 +12,8 @@ import {
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#faf8f3] text-neutral-900">
-
+    <main className="min-h-screen  text-neutral-900">
+{/* // */}
       <EditorialNavbar />
 
       <Hero />

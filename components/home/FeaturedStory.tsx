@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 
 export default function FeaturedStory() {
   return (
-    <section className="bg-[#faf8f3] py-28 border-b border-neutral-200">
+    <section className=" py-28 border-b border-neutral-200">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
 
         {/* Section Heading */}
@@ -38,7 +38,7 @@ export default function FeaturedStory() {
             <div className="overflow-hidden">
 
               <Image
-                src="/images/editorial/supreme-court.jpg"
+                src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1400&q=80"
                 alt="Supreme Court"
                 width={1400}
                 height={900}

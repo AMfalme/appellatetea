@@ -11,7 +11,7 @@ const leadStory = {
     "Beyond the Bill: How Legislative Drafting Quietly Shapes National Identity",
   excerpt:
     "Every Act of Parliament carries assumptions about power, citizenship and the future of society. Looking beyond political debate reveals how legislative drafting quietly shapes national identity for generations.",
-  image: "/images/editorial/parliament.jpg",
+  image: "https://images.unsplash.com/photo-1529107386315-e1a2f48d54f6?w=1600&q=80",
   author: "Editorial Desk",
   date: "5 July 2026",
   readTime: "9 min read",
@@ -86,7 +86,7 @@ const stories = [
 
 export default function EditorialGrid() {
   return (
-    <section className="bg-[#faf8f3] py-28 border-b border-neutral-200">
+    <section className=" py-28 border-b border-neutral-200">
 
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
 

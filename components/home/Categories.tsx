@@ -45,7 +45,7 @@ const categories = [
 
 export default function Categories() {
   return (
-    <section className="bg-[#faf8f3] py-28 border-b border-neutral-200">
+    <section className=" py-28 border-b border-neutral-200">
 
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
 
