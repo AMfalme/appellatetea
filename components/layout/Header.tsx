@@ -15,19 +15,19 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-24 items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href={ROUTES.HOME} className="flex items-center space-x-2">
+            <Link href={ROUTES.HOME} className="flex items-center space-x-3">
               <img
-                src="/logo/logo_white.png"
-                alt="Appellate Tea"
-                width={80}
-                height={80}
-                className="h-50 w-auto mt-5"
+                src="/logo.png"
+                alt="Appellate Tea Logo"
+                width={160}
+                height={160}
+                className="h-24 w-auto"
                 style={{ display: 'block' }}
               />
-              {/* <span className="text-xl font-bold text-gray-900">Appellate Tea</span> */}
+              <span className="text-2xl font-bold text-gray-900">Appellate Tea</span>
             </Link>
           </div>
           
