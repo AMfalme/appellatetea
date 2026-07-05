@@ -3,7 +3,8 @@
 import { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-import { UserRole, UserProfile } from '@/lib/types/user';
+import { getUserProfile, upsertUserProfile } from '@/lib/services/users';
+import type { UserProfile } from '@/lib/types/user';
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -25,24 +26,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       setFirebaseUser(fbUser);
-      
+
       if (fbUser) {
-        // In a real app, fetch user profile from Firestore
-        const userProfile: UserProfile = {
+        const existingProfile = await getUserProfile(fbUser.uid);
+        const profile: UserProfile = existingProfile || {
           id: fbUser.uid,
           email: fbUser.email || '',
           displayName: fbUser.displayName || 'User',
           photoURL: fbUser.photoURL || undefined,
-          role: 'viewer', // Default role, fetch from Firestore in production
+          role: 'viewer',
           isEmailVerified: fbUser.emailVerified,
           createdAt: new Date(),
           updatedAt: new Date(),
         };
-        setUser(userProfile);
+
+        if (!existingProfile) {
+          await upsertUserProfile({
+            ...profile,
+            lastLoginAt: new Date(),
+          });
+        }
+
+        setUser(profile);
       } else {
         setUser(null);
       }
-      
+
       setLoading(false);
     });
 

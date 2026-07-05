@@ -1,11 +1,22 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { getFeaturedArticle } from "@/lib/services/articles";
+import type { Article } from "@/lib/types/article";
 
 export default function Hero() {
+  const [article, setArticle] = useState<Article | null>(null);
+
+  useEffect(() => {
+    void getFeaturedArticle().then(setArticle);
+  }, []);
+
+  if (!article) return null;
+
   return (
     <section className="relative overflow-hidden bg-white">
       {/* Paper Texture */}
@@ -30,8 +41,8 @@ export default function Hero() {
               {/* Catchy Newspaper-Style Hero Image Wrapper */}
               <div className="relative w-full aspect-[4/3] rounded bg-neutral-100 overflow-hidden border border-neutral-200 shadow-sm mt-8">
                 <Image
-                  src="/media/justice.png"
-                  alt="Judicial architecture and constitutional law imagery"
+                  src={article.heroImage?.url || "/media/justice.png"}
+                  alt={article.heroImage?.alt || article.title}
                   fill
                   className="object-cover grayscale hover:grayscale-0 transition-all duration-500 ease-in-out"
                   sizes="(max-w-1024px) 100vw, 33vw"
@@ -58,20 +69,19 @@ export default function Hero() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.15 }}
             >
-              <Link href="/articles/how-a-quiet-supreme-court-decision" className="group block space-y-6">
+              <Link href={`/articles/${article.slug}`} className="group block space-y-6">
                 <div className="flex items-center gap-4 text-xs uppercase tracking-widest text-neutral-500 font-medium">
-                  <span>Constitutional Law</span>
+                  <span>{article.category}</span>
                   <span>•</span>
-                  <span>14 min read</span>
+                  <span>{article.readingTime} min read</span>
                 </div>
 
                 <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-neutral-900 leading-[1.15] tracking-tight group-hover:text-[#8B1E1E] transition-colors duration-300">
-                  How a Quiet Supreme Court Decision Could Redefine Administrative Justice Across Africa
+                  {article.title}
                 </h2>
 
                 <p className="text-neutral-600 text-lg md:text-xl leading-relaxed max-w-3xl">
-                  Behind seemingly technical constitutional language lies a judgment capable of reshaping 
-                  administrative law, accountability, and institutional independence for decades to come.
+                  {article.excerpt}
                 </p>
 
                 <div className="inline-flex items-center gap-3 text-[#8B1E1E] font-semibold tracking-wider text-sm uppercase pt-4 border-b border-transparent group-hover:border-[#8B1E1E] transition-all">

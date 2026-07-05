@@ -1,11 +1,22 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Clock3, CalendarDays, User2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { getFeaturedArticle } from "@/lib/services/articles";
+import type { Article } from "@/lib/types/article";
 
 export default function FeaturedStory() {
+  const [article, setArticle] = useState<Article | null>(null);
+
+  useEffect(() => {
+    void getFeaturedArticle().then(setArticle);
+  }, []);
+
+  if (!article) return null;
+
   return (
     <section className=" py-28 border-b border-neutral-200">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
@@ -38,8 +49,8 @@ export default function FeaturedStory() {
             <div className="overflow-hidden">
 
               <Image
-                src="/media/supreme.jpg"
-                alt="Supreme Court"
+                src={article.heroImage?.url || "/media/supreme.jpg"}
+                alt={article.heroImage?.alt || article.title}
                 width={1400}
                 height={900}
                 className="aspect-[4/3] object-cover w-full transition-transform duration-700 hover:scale-[1.03]"
@@ -64,23 +75,15 @@ export default function FeaturedStory() {
           >
 
             <p className="uppercase tracking-[0.3em] text-xs text-[#8B1E1E] font-semibold">
-              Constitutional Law
+              {article.category}
             </p>
 
             <h2 className="mt-5 font-serif text-5xl leading-tight text-neutral-900">
-              How One Supreme Court Decision Quietly Reshaped
-              Administrative Justice
+              {article.title}
             </h2>
 
             <p className="mt-8 text-lg leading-9 text-neutral-700">
-              Most constitutional judgments disappear into legal databases,
-              referenced only by scholars and practitioners. Others quietly
-              redefine governance for decades.
-
-              This analysis examines one overlooked decision whose influence
-              extends far beyond the courtroom, affecting administrative
-              justice, public accountability and institutional independence
-              throughout Africa.
+              {article.excerpt}
             </p>
 
             {/* Metadata */}
@@ -89,17 +92,17 @@ export default function FeaturedStory() {
 
               <div className="flex items-center gap-2">
                 <User2 size={16} />
-                Editorial Desk
+                {article.authorName}
               </div>
 
               <div className="flex items-center gap-2">
                 <Clock3 size={16} />
-                14 min read
+                {article.readingTime} min read
               </div>
 
               <div className="flex items-center gap-2">
                 <CalendarDays size={16} />
-                5 July 2026
+                {new Date(article.publishedAt || Date.now()).toLocaleDateString("en", { day: "numeric", month: "long", year: "numeric" })}
               </div>
 
               <div>
@@ -113,7 +116,7 @@ export default function FeaturedStory() {
             <div className="my-12 h-px bg-neutral-300" />
 
             <Link
-              href="/articles/how-one-supreme-court-decision"
+              href={`/articles/${article.slug}`}
               className="inline-flex items-center gap-3 font-semibold text-[#8B1E1E] group"
             >
               Read the Full Analysis

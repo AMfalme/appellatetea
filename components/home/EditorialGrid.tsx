@@ -1,9 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Clock3, CalendarDays, User2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { getHomePageContent } from "@/lib/services/articles";
+import type { Article } from "@/lib/types/article";
 
 const leadStory = {
   category: "Parliament",
@@ -85,6 +88,18 @@ const stories = [
 ];
 
 export default function EditorialGrid() {
+  const [mainArticles, setMainArticles] = useState<Article[]>([]);
+  const [briefArticles, setBriefArticles] = useState<Article[]>([]);
+
+  useEffect(() => {
+    void getHomePageContent().then((content) => {
+      setMainArticles(content.mainArticles);
+      setBriefArticles(content.briefArticles);
+    });
+  }, []);
+
+  const leadArticle = mainArticles[0] || null;
+
   return (
     <section className=" py-28 border-b border-neutral-200">
 
@@ -121,8 +136,8 @@ export default function EditorialGrid() {
             <figure>
 
               <Image
-                src={leadStory.image}
-                alt={leadStory.title}
+                src={leadArticle?.heroImage?.url || leadStory.image}
+                alt={leadArticle?.heroImage?.alt || leadArticle?.title || leadStory.title}
                 width={1600}
                 height={1000}
                 className="aspect-[16/9] object-cover w-full"
@@ -138,7 +153,7 @@ export default function EditorialGrid() {
 
               <p className="uppercase tracking-[0.3em] text-xs font-semibold text-[#8B1E1E]">
 
-                {leadStory.category}
+                {leadArticle?.category || leadStory.category}
 
               </p>
 
@@ -146,7 +161,7 @@ export default function EditorialGrid() {
 
                 <Link href="/articles/parliament-legislative-drafting">
 
-                  {leadStory.title}
+                  {leadArticle?.title || leadStory.title}
 
                 </Link>
 
@@ -154,7 +169,7 @@ export default function EditorialGrid() {
 
               <p className="mt-8 text-lg leading-9 text-neutral-700 max-w-4xl">
 
-                {leadStory.excerpt}
+                {leadArticle?.excerpt || leadStory.excerpt}
 
               </p>
 
@@ -164,7 +179,7 @@ export default function EditorialGrid() {
 
                   <User2 size={15} />
 
-                  {leadStory.author}
+                  {leadArticle?.authorName || leadStory.author}
 
                 </div>
 
@@ -180,14 +195,14 @@ export default function EditorialGrid() {
 
                   <Clock3 size={15} />
 
-                  {leadStory.readTime}
+                  {leadArticle?.readingTime ? `${leadArticle.readingTime} min read` : leadStory.readTime}
 
                 </div>
 
               </div>
 
               <Link
-                href="/articles/parliament-legislative-drafting"
+                href={`/articles/${leadArticle?.slug || "parliament-legislative-drafting"}`}
                 className="inline-flex items-center gap-3 mt-10 text-[#8B1E1E] font-semibold group"
               >
                 Continue Reading
@@ -222,10 +237,10 @@ export default function EditorialGrid() {
 
             <div className="space-y-10">
 
-              {briefs.map((brief) => (
+              {briefArticles.map((brief) => (
 
                 <article
-                  key={brief.number}
+                  key={brief.id}
                   className="border-b border-neutral-200 pb-8"
                 >
 
@@ -233,7 +248,7 @@ export default function EditorialGrid() {
 
                     <span className="font-serif text-3xl text-neutral-300">
 
-                      {brief.number}
+                      {String(briefArticles.indexOf(brief) + 1).padStart(2, "0")}
 
                     </span>
 
@@ -257,7 +272,7 @@ export default function EditorialGrid() {
 
                       <p className="mt-4 text-sm text-neutral-500">
 
-                        {brief.read}
+                        {brief.readingTime ? `${brief.readingTime} min read` : "Quick read"}
 
                       </p>
 

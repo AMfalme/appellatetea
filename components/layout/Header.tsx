@@ -45,9 +45,11 @@ export function Header() {
                     <span className="text-sm text-gray-700">
                       {user.displayName}
                     </span>
-                    <Button variant="outline" size="sm">
-                      Dashboard
-                    </Button>
+                    <Link href={ROUTES.ADMIN}>
+                      <Button variant="outline" size="sm">
+                        Dashboard
+                      </Button>
+                    </Link>
                   </>
                 ) : (
                   <>
@@ -92,9 +94,11 @@ export function Header() {
                         <p className="text-sm text-gray-700 mb-2">
                           {user.displayName}
                         </p>
-                        <Button variant="outline" size="sm" className="w-full">
-                          Dashboard
-                        </Button>
+                        <Link href={ROUTES.ADMIN} className="block">
+                          <Button variant="outline" size="sm" className="w-full">
+                            Dashboard
+                          </Button>
+                        </Link>
                       </>
                     ) : (
                       <div className="flex flex-col space-y-2">
