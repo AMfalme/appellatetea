@@ -74,7 +74,7 @@ export default function EditorialNavbar() {
                         tracking-[0.18em]
                         text-xs
                         text-neutral-700
-                        hover:text-[#8B1E1E]
+                        group
                         transition-colors
                         after:absolute
                         after:left-0
@@ -83,7 +83,8 @@ export default function EditorialNavbar() {
                         after:w-0
                         after:bg-[#8B1E1E]
                         after:transition-all
-                        hover:after:w-full
+                        group-hover:text-[#8B1E1E]
+                        group-hover:after:w-full
                       "
                     >
                       {item.title}
@@ -160,7 +161,7 @@ export default function EditorialNavbar() {
                     <Link
                       href={item.href}
                       onClick={() => setOpen(false)}
-                      className="font-serif text-3xl hover:text-[#8B1E1E]"
+                      className="font-serif text-3xl group-hover:text-[#8B1E1E]"
                     >
                       {item.title}
                     </Link>

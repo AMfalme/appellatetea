@@ -96,7 +96,7 @@ export default function EditorsPick() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * .08 }}
-              className="border-t border-neutral-700 pt-8"
+              className="group border-t border-neutral-700 pt-8"
             >
 
               <p className="uppercase tracking-[0.25em] text-[11px] font-semibold text-[#d24a43]">
@@ -105,7 +105,7 @@ export default function EditorsPick() {
 
               </p>
 
-              <h3 className="mt-5 font-serif text-3xl leading-snug hover:text-[#d24a43] transition-colors">
+              <h3 className="mt-5 font-serif text-3xl leading-snug group-hover:text-[#8B1E1E] transition-colors">
 
                 <Link href="#">
 

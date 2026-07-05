@@ -134,7 +134,7 @@ export default function EditorialGrid() {
 
             </figure>
 
-            <div className="mt-10">
+            <div className="mt-10 group">
 
               <p className="uppercase tracking-[0.3em] text-xs font-semibold text-[#8B1E1E]">
 
@@ -142,7 +142,7 @@ export default function EditorialGrid() {
 
               </p>
 
-              <h2 className="mt-5 font-serif text-5xl md:text-6xl leading-tight text-neutral-900 hover:text-[#8B1E1E] transition-colors">
+              <h2 className="mt-5 font-serif text-5xl md:text-6xl leading-tight text-neutral-900 group-hover:text-[#8B1E1E] transition-colors">
 
                 <Link href="/articles/parliament-legislative-drafting">
 
@@ -237,7 +237,7 @@ export default function EditorialGrid() {
 
                     </span>
 
-                    <div>
+                    <div className="group">
 
                       <p className="uppercase tracking-[0.25em] text-[11px] font-semibold text-[#8B1E1E]">
 
@@ -245,7 +245,7 @@ export default function EditorialGrid() {
 
                       </p>
 
-                      <h4 className="mt-3 font-serif text-2xl leading-snug text-neutral-900 hover:text-[#8B1E1E] transition-colors">
+                      <h4 className="mt-3 font-serif text-2xl leading-snug text-neutral-900 group-hover:text-[#8B1E1E] transition-colors">
 
                         <Link href="#">
 
@@ -306,6 +306,7 @@ export default function EditorialGrid() {
                   delay: index * .08,
                 }}
                 className="
+                  group
                   border-t
                   border-neutral-300
                   pt-8
@@ -340,7 +341,7 @@ export default function EditorialGrid() {
                     text-3xl
                     leading-tight
                     text-neutral-900
-                    hover:text-[#8B1E1E]
+                    group-hover:text-[#8B1E1E]
                     transition-colors
                   "
                 >
