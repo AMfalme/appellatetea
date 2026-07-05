@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
-import { Menu, X, Scale } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { MainNav } from '@/components/ui/Navigation';
 import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/lib/constants/routes';
@@ -19,7 +20,14 @@ export function Header() {
           {/* Logo */}
           <div className="flex items-center">
             <Link href={ROUTES.HOME} className="flex items-center space-x-2">
-              <Scale className="h-8 w-8 text-blue-600" />
+              <Image
+                src="/logo.png"
+                alt="Appellate Tea Logo"
+                width={40}
+                height={40}
+                className="h-8 w-auto"
+                priority
+              />
               <span className="text-xl font-bold text-gray-900">Appellate Tea</span>
             </Link>
           </div>

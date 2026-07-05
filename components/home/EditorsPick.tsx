@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Clock3 } from "lucide-react";
+import { ArrowRight, Clock3, Quote } from "lucide-react";
 import { motion } from "framer-motion";
 
-const picks = [
+const essays = [
   {
     category: "Judicial Appointments",
     title:
@@ -27,62 +27,134 @@ const picks = [
 
 export default function EditorsPick() {
   return (
-    <section className="bg-neutral-950 text-white py-24">
+    <section className="bg-neutral-950 text-white py-28">
+
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
 
-        <div className="flex items-center gap-5 mb-16">
+        {/* Heading */}
+
+        <div className="flex items-center gap-5 mb-20">
 
           <div className="flex-1 h-px bg-neutral-700" />
 
-          <span className="uppercase tracking-[0.35em] text-xs font-semibold text-[#d24a43]">
-            Editor's Picks
+          <span className="uppercase tracking-[0.4em] text-xs font-semibold text-[#d24a43]">
+            04 • From the Editor's Desk
           </span>
 
           <div className="flex-1 h-px bg-neutral-700" />
 
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-12">
+        {/* Editorial */}
 
-          {picks.map((pick, index) => (
+        <motion.div
+          initial={{ opacity: 0, y: 25 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="max-w-5xl mx-auto text-center"
+        >
+
+          <Quote
+            className="mx-auto mb-8 text-[#d24a43]"
+            size={42}
+          />
+
+          <h2 className="font-serif text-5xl md:text-6xl leading-tight">
+
+            Every judgment deserves more than a summary.
+
+          </h2>
+
+          <p className="mt-10 text-xl leading-9 text-neutral-300">
+
+            Courts resolve disputes, but they also reveal the values,
+            tensions and aspirations of society.
+
+            At Appellate Tea, we believe legal analysis should move
+            beyond citations and precedent to explore the historical,
+            political and philosophical questions that shape public life.
+
+          </p>
+
+          <div className="mt-10 text-sm uppercase tracking-[0.3em] text-neutral-500">
+
+            — Editorial Board
+
+          </div>
+
+        </motion.div>
+
+        {/* Essays */}
+
+        <div className="grid lg:grid-cols-3 gap-12 mt-24">
+
+          {essays.map((essay, index) => (
+
             <motion.article
-              key={pick.title}
+              key={essay.title}
               initial={{ opacity: 0, y: 25 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="border-t border-neutral-700 pt-6"
+              transition={{ delay: index * .08 }}
+              className="border-t border-neutral-700 pt-8"
             >
-              <p className="uppercase tracking-[0.25em] text-[11px] text-[#d24a43] mb-3">
-                {pick.category}
+
+              <p className="uppercase tracking-[0.25em] text-[11px] font-semibold text-[#d24a43]">
+
+                {essay.category}
+
               </p>
 
-              <h3 className="font-serif text-3xl leading-snug hover:text-[#d24a43] transition-colors">
+              <h3 className="mt-5 font-serif text-3xl leading-snug hover:text-[#d24a43] transition-colors">
+
                 <Link href="#">
-                  {pick.title}
+
+                  {essay.title}
+
                 </Link>
+
               </h3>
 
-              <div className="flex items-center gap-2 mt-6 text-sm text-neutral-400">
+              <div className="mt-8 flex items-center gap-2 text-sm text-neutral-400">
+
                 <Clock3 size={15} />
-                {pick.read}
+
+                {essay.read}
+
               </div>
 
               <Link
                 href="#"
-                className="inline-flex items-center gap-2 mt-8 text-sm uppercase tracking-widest text-[#d24a43] group"
+                className="
+                  inline-flex
+                  items-center
+                  gap-3
+                  mt-8
+                  font-semibold
+                  text-[#d24a43]
+                  group
+                "
               >
+
                 Read Essay
 
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <ArrowRight
+                  className="
+                    transition-transform
+                    group-hover:translate-x-1
+                  "
+                />
+
               </Link>
 
             </motion.article>
+
           ))}
 
         </div>
 
       </div>
+
     </section>
   );
 }
