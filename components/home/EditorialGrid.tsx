@@ -11,7 +11,7 @@ const leadStory = {
     "Beyond the Bill: How Legislative Drafting Quietly Shapes National Identity",
   excerpt:
     "Every Act of Parliament carries assumptions about power, citizenship and the future of society. Looking beyond political debate reveals how legislative drafting quietly shapes national identity for generations.",
-  image: "https://images.unsplash.com/photo-1529107386315-e1a2f48d54f6?w=1600&q=80",
+  image: "/media/parliament.jpg",
   author: "Editorial Desk",
   date: "5 July 2026",
   readTime: "9 min read",

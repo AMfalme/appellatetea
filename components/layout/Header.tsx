@@ -20,14 +20,14 @@ export function Header() {
           <div className="flex items-center">
             <Link href={ROUTES.HOME} className="flex items-center space-x-3">
               <img
-                src="/logo.png"
+                src="/logo/logo_white.png"
                 alt="Appellate Tea Logo"
                 width={160}
                 height={160}
-                className="h-24 w-auto"
+                className="h-40 w-auto"
                 style={{ display: 'block' }}
               />
-              <span className="text-2xl font-bold text-gray-900">Appellate Tea</span>
+              {/* <span className="text-2xl font-bold text-gray-900">Appellate Tea</span> */}
             </Link>
           </div>
           

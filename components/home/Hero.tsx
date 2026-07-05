@@ -30,8 +30,8 @@ export default function Hero() {
               {/* Catchy Newspaper-Style Hero Image Wrapper */}
               <div className="relative w-full aspect-[4/3] rounded bg-neutral-100 overflow-hidden border border-neutral-200 shadow-sm mt-8">
                 <Image
-                  src="/images/hero-editorial.jpg" // Replace with your actual image path
-                  alt="Law and society in motion editorial artwork"
+                  src="/media/justice.png"
+                  alt="Judicial architecture and constitutional law imagery"
                   fill
                   className="object-cover grayscale hover:grayscale-0 transition-all duration-500 ease-in-out"
                   sizes="(max-w-1024px) 100vw, 33vw"

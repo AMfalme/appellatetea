@@ -38,7 +38,7 @@ export default function FeaturedStory() {
             <div className="overflow-hidden">
 
               <Image
-                src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1400&q=80"
+                src="/media/supreme.jpg"
                 alt="Supreme Court"
                 width={1400}
                 height={900}
