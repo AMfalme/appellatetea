@@ -6,6 +6,8 @@ import { NotificationProvider } from "@/components/providers/NotificationProvide
 import DisclaimerBanner from "@/components/home/DisclaimerBanner";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/ui/Footer";
+
+import { Analytics } from "@vercel/analytics/next"
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -45,6 +47,7 @@ export default function RootLayout({
               <Footer />
             </NotificationProvider>
           </AuthProvider>
+          <Analytics/>
         </QueryProvider>
       </body>
     </html>

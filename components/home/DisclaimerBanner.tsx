@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, MessageSquare } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 const DISMISSED_KEY = "disclaimer-dismissed";
 const LAUNCH_DATE = new Date("2026-08-01T00:00:00");
 
 export default function DisclaimerBanner() {
+  const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
@@ -20,10 +22,10 @@ export default function DisclaimerBanner() {
   });
 
   useEffect(() => {
-    // Show disclaimer immediately on every page visit
+    // Show disclaimer immediately on every page navigation
     // Dismissal only hides it for the current page load
     setIsVisible(true);
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     if (!isVisible) return;
