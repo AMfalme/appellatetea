@@ -121,6 +121,8 @@ export async function getHomePageContent(): Promise<HomePageContent> {
 }
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
+  if (!slug) return null;
+
   const q = query(
     collection(db, COLLECTION),
     where('status', '==', 'published'),

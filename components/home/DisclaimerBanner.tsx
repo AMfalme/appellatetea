@@ -5,10 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, MessageSquare } from "lucide-react";
 
 const DISMISSED_KEY = "disclaimer-dismissed";
-const PAGE_VIEW_KEY = "disclaimer-page-views";
-const LAST_DISMISSED_KEY = "disclaimer-last-dismissed";
-const DISPLAY_INTERVAL = 3;
-const TIME_INTERVAL_MS = 2 * 60 * 1000; // 2 minutes
 const LAUNCH_DATE = new Date("2026-08-01T00:00:00");
 
 export default function DisclaimerBanner() {
@@ -24,30 +20,9 @@ export default function DisclaimerBanner() {
   });
 
   useEffect(() => {
-    // Track page views: show disclaimer every DISPLAY_INTERVAL page loads
-    const pageViews = parseInt(localStorage.getItem(PAGE_VIEW_KEY) || "0", 10);
-    const newPageViews = pageViews + 1;
-    localStorage.setItem(PAGE_VIEW_KEY, newPageViews.toString());
-
-    // Check if we should show based on page view count
-    const shouldShowByPageView = newPageViews % DISPLAY_INTERVAL === 0;
-    // Also check if user dismissed the current interval's disclaimer
-    const intervalKey = `${DISMISSED_KEY}-${Math.floor(newPageViews / DISPLAY_INTERVAL)}`;
-    const isDismissedForInterval = localStorage.getItem(intervalKey) === "true";
-
-    // Check time-based trigger: has 2 minutes elapsed since last dismissal?
-    const lastDismissed = parseInt(localStorage.getItem(LAST_DISMISSED_KEY) || "0", 10);
-    const shouldShowByTime = lastDismissed > 0 && (Date.now() - lastDismissed) >= TIME_INTERVAL_MS;
-
-    // Also check for first-time visitor (never dismissed)
-    const isFirstVisit = lastDismissed === 0;
-
-    const shouldShow = (shouldShowByPageView && !isDismissedForInterval) || shouldShowByTime || isFirstVisit;
-
-    if (shouldShow) {
-      const timer = setTimeout(() => setIsVisible(true), 800);
-      return () => clearTimeout(timer);
-    }
+    // Show disclaimer immediately on every page visit
+    // Dismissal only hides it for the current page load
+    setIsVisible(true);
   }, []);
 
   useEffect(() => {
@@ -75,12 +50,6 @@ export default function DisclaimerBanner() {
 
   const handleDismiss = () => {
     setIsVisible(false);
-    // Mark the current interval as dismissed
-    const pageViews = parseInt(localStorage.getItem(PAGE_VIEW_KEY) || "0", 10);
-    const intervalKey = `${DISMISSED_KEY}-${Math.floor(pageViews / DISPLAY_INTERVAL)}`;
-    localStorage.setItem(intervalKey, "true");
-    // Record the time of dismissal so we can show again after 2 minutes
-    localStorage.setItem(LAST_DISMISSED_KEY, Date.now().toString());
   };
 
   const handleFeedbackSubmit = async (e: React.FormEvent) => {
