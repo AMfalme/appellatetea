@@ -206,6 +206,9 @@ export default function AdminPage() {
                 <Link href="/admin/cases/new">
                   <Button variant="outline" className="w-full">Create article</Button>
                 </Link>
+                <Link href="/admin/subscribers">
+                  <Button variant="outline" className="w-full">View subscribers</Button>
+                </Link>
               </div>
             </div>
           </div>

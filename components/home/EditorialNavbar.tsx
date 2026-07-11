@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Menu, Search, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { PlaceholderBadge } from "./PlaceholderBadge";
+import LaunchCountdown from "./LaunchCountdown";
+import SearchOverlay from "@/components/features/SearchOverlay";
 
 const navigation = [
   { title: "Latest", href: "/articles" },
@@ -18,6 +20,7 @@ const navigation = [
 
 export default function EditorialNavbar() {
   const [open, setOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const today = useMemo(() => {
     return new Intl.DateTimeFormat("en-GB", {
@@ -100,6 +103,7 @@ export default function EditorialNavbar() {
 
             {/* Search */}
             <button
+              onClick={() => setSearchOpen(true)}
               aria-label="Search"
               className="
                 flex
@@ -135,6 +139,10 @@ export default function EditorialNavbar() {
           </div>
         </div>
       </motion.div>
+
+      <LaunchCountdown />
+
+      <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
 
       {/* Mobile Menu */}
       <AnimatePresence>

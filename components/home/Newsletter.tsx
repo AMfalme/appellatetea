@@ -1,10 +1,39 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Newspaper } from "lucide-react";
+import { ArrowRight, Newspaper, CheckCircle } from "lucide-react";
 import { PlaceholderBadge } from "./PlaceholderBadge";
+import { db } from "@/lib/firebase/config";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export default function Newsletter() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+
+    setStatus("loading");
+    setErrorMsg("");
+
+    try {
+      await addDoc(collection(db, "earlyAccessSubscribers"), {
+        email: email.trim().toLowerCase(),
+        subscribedAt: serverTimestamp(),
+        source: "newsletter-section",
+      });
+      setStatus("success");
+      setEmail("");
+    } catch (err) {
+      console.error("Failed to subscribe:", err);
+      setStatus("error");
+      setErrorMsg("Something went wrong. Please try again.");
+    }
+  };
+
   return (
     <section className="bg-[#f4f1ea] py-32 border-y border-neutral-200">
 
@@ -93,44 +122,62 @@ export default function Newsletter() {
 
             </p>
 
-            <form className="mt-10 space-y-5">
+            {status === "success" ? (
+              <div className="mt-10 flex items-center gap-3 text-green-700 bg-green-50 border border-green-200 px-6 py-4">
+                <CheckCircle size={20} />
+                <p className="text-sm font-medium">You're subscribed! Welcome to the early access list.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="mt-10 space-y-5">
 
-              <input
-                type="email"
-                placeholder="Your email address"
-                className="
-                  w-full
-                  border
-                  border-neutral-300
-                  px-6
-                  py-4
-                  outline-none
-                  focus:border-[#8B1E1E]
-                "
-              />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Your email address"
+                  required
+                  className="
+                    w-full
+                    border
+                    border-neutral-300
+                    px-6
+                    py-4
+                    outline-none
+                    focus:border-[#8B1E1E]
+                  "
+                />
 
-              <button
-                className="
-                  w-full
-                  bg-[#8B1E1E]
-                  hover:bg-[#731818]
-                  transition-colors
-                  text-white
-                  py-4
-                  flex
-                  items-center
-                  justify-center
-                  gap-3
-                "
-              >
+                {status === "error" && (
+                  <p className="text-sm text-red-600">{errorMsg}</p>
+                )}
 
-                Subscribe
+                <button
+                  type="submit"
+                  disabled={status === "loading"}
+                  className="
+                    w-full
+                    bg-[#8B1E1E]
+                    hover:bg-[#731818]
+                    transition-colors
+                    text-white
+                    py-4
+                    flex
+                    items-center
+                    justify-center
+                    gap-3
+                    disabled:opacity-50
+                    disabled:cursor-not-allowed
+                  "
+                >
 
-                <ArrowRight size={18} />
+                  {status === "loading" ? "Subscribing..." : "Subscribe"}
 
-              </button>
+                  <ArrowRight size={18} />
 
-            </form>
+                </button>
+
+              </form>
+            )}
 
             <p className="mt-6 text-sm text-neutral-500">
 

@@ -294,22 +294,40 @@ export default function NewspaperAdminPage() {
         title={`Assign Article to ${selectedSection ? SECTION_LABELS[selectedSection] : ''}`}
       >
         <div className="flex flex-col gap-4">
-          <div className="max-h-96 overflow-y-auto">
-            {articles.map((article) => (
-              <div
-                key={article.id}
-                onClick={() => setSelectedArticleId(article.id)}
-                className={`cursor-pointer rounded border p-4 mb-2 transition-colors ${
-                  selectedArticleId === article.id
-                    ? 'border-[#8B1E1E] bg-red-50'
-                    : 'border-neutral-200 hover:border-neutral-300'
-                }`}
-              >
-                <p className="font-medium text-neutral-900">{article.title}</p>
-                <p className="mt-1 text-xs text-neutral-500">{article.category} • {article.readingTime} min read</p>
-                <p className="mt-2 text-sm text-neutral-600 line-clamp-2">{article.excerpt}</p>
-              </div>
-            ))}
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsModalOpen(false);
+                setSelectedSection(null);
+                setSelectedArticleId('');
+                router.push('/admin/cases/new');
+              }}
+              className="flex-1"
+            >
+              Create New Article
+            </Button>
+          </div>
+
+          <div className="border-t border-neutral-200 pt-4">
+            <p className="text-sm font-medium text-neutral-700 mb-2">Or select existing article:</p>
+            <div className="max-h-96 overflow-y-auto">
+              {articles.map((article) => (
+                <div
+                  key={article.id}
+                  onClick={() => setSelectedArticleId(article.id)}
+                  className={`cursor-pointer rounded border p-4 mb-2 transition-colors ${
+                    selectedArticleId === article.id
+                      ? 'border-[#8B1E1E] bg-red-50'
+                      : 'border-neutral-200 hover:border-neutral-300'
+                  }`}
+                >
+                  <p className="font-medium text-neutral-900">{article.title}</p>
+                  <p className="mt-1 text-xs text-neutral-500">{article.category} • {article.readingTime} min read</p>
+                  <p className="mt-2 text-sm text-neutral-600 line-clamp-2">{article.excerpt}</p>
+                </div>
+              ))}
+            </div>
           </div>
           <div className="flex justify-end gap-3">
             <Button

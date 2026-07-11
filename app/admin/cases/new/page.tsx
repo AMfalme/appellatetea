@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { createArticle, updateArticle } from "@/lib/services/articles";
+import { createArticle, updateArticle, getArticlesBySection } from "@/lib/services/articles";
 import type { Article } from "@/lib/types/article";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { uploadToCloudinary } from "@/lib/services/cloudinary";
 
 export default function CreateArticlePage() {
   const router = useRouter();
@@ -22,6 +23,9 @@ export default function CreateArticlePage() {
     readingTime: 8,
     status: 'draft' as Article['status'],
     live: true,
+    newspaperSection: '',
+    heroImageUrl: '',
+    heroImagePublicId: '',
   });
 
   useEffect(() => {
@@ -34,12 +38,60 @@ export default function CreateArticlePage() {
     }
   }, [loading, user, router]);
 
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [sectionConflict, setSectionConflict] = useState<Article | null>(null);
+  const [checkingSection, setCheckingSection] = useState(false);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+    }
+  };
+
+  const handleSectionChange = async (section: string) => {
+    setFormData({ ...formData, newspaperSection: section });
+    
+    if (section) {
+      setCheckingSection(true);
+      setSectionConflict(null);
+      try {
+        const existing = await getArticlesBySection(section);
+        if (existing.length > 0) {
+          setSectionConflict(existing[0]);
+        }
+      } catch (err) {
+        console.error('Failed to check section:', err);
+      } finally {
+        setCheckingSection(false);
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSaving(true);
 
     try {
+      let heroImage = undefined;
+      
+      // Upload image to Cloudinary if selected
+      if (imageFile) {
+        try {
+          const uploaded = await uploadToCloudinary(imageFile, 'articles');
+          heroImage = {
+            publicId: uploaded.public_id,
+            url: uploaded.secure_url,
+            alt: formData.title,
+          };
+        } catch (uploadErr: any) {
+          setError(`Image upload failed: ${uploadErr.message}`);
+          setSaving(false);
+          return;
+        }
+      }
+
       const articleData: Partial<Article> = {
         ...formData,
         slug: formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
@@ -48,6 +100,7 @@ export default function CreateArticlePage() {
         publishedAt: formData.status === 'published' ? new Date().toISOString() : undefined,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        heroImage,
       };
 
       const articleId = await createArticle(articleData);
@@ -166,6 +219,45 @@ export default function CreateArticlePage() {
                   <option value="pending_review">Pending Review</option>
                   <option value="published">Published</option>
                 </select>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-neutral-700">Newspaper Section</label>
+                <select
+                  value={formData.newspaperSection}
+                  onChange={(e) => void handleSectionChange(e.target.value)}
+                  className="w-full rounded border border-neutral-300 bg-white px-3 py-2"
+                >
+                  <option value="">None</option>
+                  <option value="lead">01 • The Lead</option>
+                  <option value="featured">02 • Featured Story</option>
+                  <option value="frontpage">03 • Today's Front Page</option>
+                  <option value="editorial_column">04 • Editorial Column</option>
+                  <option value="editors_desk">05 • Editor's Desk</option>
+                </select>
+                {checkingSection && <p className="mt-1 text-xs text-neutral-500">Checking section...</p>}
+                {sectionConflict && (
+                  <div className="mt-2 rounded border border-yellow-200 bg-yellow-50 p-3">
+                    <p className="text-sm font-medium text-yellow-800">Section Already Taken</p>
+                    <p className="mt-1 text-xs text-yellow-700">
+                      "{sectionConflict.title}" is currently assigned to this section.
+                    </p>
+                    <p className="mt-1 text-xs text-yellow-600">
+                      Assigning this article will replace the existing one.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-neutral-700">Hero Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="w-full rounded border border-neutral-300 px-3 py-2"
+                />
+                <p className="mt-1 text-xs text-neutral-500">Upload an image for this article (will be stored in Cloudinary)</p>
               </div>
 
               <div className="flex items-center gap-2">

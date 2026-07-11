@@ -3,6 +3,7 @@ import { Playfair_Display, Inter } from "next/font/google";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { NotificationProvider } from "@/components/providers/NotificationProvider";
+import DisclaimerBanner from "@/components/home/DisclaimerBanner";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/ui/Footer";
 import "./globals.css";
@@ -38,6 +39,7 @@ export default function RootLayout({
         <QueryProvider>
           <AuthProvider>
             <NotificationProvider>
+              <DisclaimerBanner />
               <Header />
               <main className="flex-1">{children}</main>
               <Footer />

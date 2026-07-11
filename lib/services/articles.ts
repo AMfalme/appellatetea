@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, limit, orderBy, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, limit, orderBy, query, setDoc, updateDoc, where, startAt, endAt } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { Article, HomePageContent } from '@/lib/types/article';
 
@@ -195,4 +195,73 @@ export async function deleteArticle(id: string): Promise<void> {
     live: false,
     updatedAt: new Date(),
   });
+}
+
+export async function getArticlesBySection(section: string): Promise<Article[]> {
+  const q = query(
+    collection(db, COLLECTION),
+    where('newspaperSection', '==', section),
+    where('live', '==', true),
+    limit(1)
+  );
+
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(normalizeArticle);
+}
+
+/**
+ * Search published articles by title using Firestore range queries.
+ * This performs a prefix match on the title field.
+ */
+export async function searchArticlesByTitle(searchQuery: string, maxResults = 10): Promise<Article[]> {
+  if (!searchQuery.trim()) return [];
+
+  const searchLower = searchQuery.trim().toLowerCase();
+  const searchUpper = searchLower + '\uf8ff';
+
+  try {
+    const q = query(
+      collection(db, COLLECTION),
+      where('status', '==', 'published'),
+      orderBy('title'),
+      startAt(searchLower),
+      endAt(searchUpper),
+      limit(maxResults)
+    );
+
+    const snapshot = await getDocs(q);
+    const articles = snapshot.docs.map(normalizeArticle);
+
+    // If no results from the prefix query, fall back to fetching recent articles
+    // and filtering client-side for a more flexible match
+    if (articles.length === 0) {
+      return searchArticlesLocally(searchQuery, maxResults);
+    }
+
+    return articles;
+  } catch (err) {
+    // Fallback: if the composite index doesn't exist, do client-side filtering
+    console.warn('Firestore search query failed, falling back to client-side search:', err);
+    return searchArticlesLocally(searchQuery, maxResults);
+  }
+}
+
+/**
+ * Client-side fallback: fetch all published articles and filter by title match.
+ */
+async function searchArticlesLocally(searchQuery: string, maxResults: number): Promise<Article[]> {
+  const q = query(
+    collection(db, COLLECTION),
+    where('status', '==', 'published'),
+    limit(100)
+  );
+
+  const snapshot = await getDocs(q);
+  const articles = snapshot.docs.map(normalizeArticle);
+
+  const searchLower = searchQuery.trim().toLowerCase();
+
+  return articles
+    .filter((article) => article.title.toLowerCase().includes(searchLower))
+    .slice(0, maxResults);
 }
