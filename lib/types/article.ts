@@ -12,19 +12,27 @@ export interface ArticleBase {
   title: string;
   excerpt: string;
   body: string;
+  content?: string;
   bodyJson?: Record<string, unknown>;
   heroImage?: ArticleImage;
+  coverImage?: ArticleImage;
   category?: string;
+  categoryId?: string;
   categorySlug?: string;
   authorName?: string;
+  authorId?: string;
   authorSlug?: string;
   tags?: string[];
   status: ArticleStatus;
+  published?: boolean;
   featured?: boolean;
   readingTime?: number;
   publishedAt?: string;
   createdAt?: string;
   updatedAt?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  canonical?: string;
 }
 
 export interface Article extends ArticleBase {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { NotificationProvider } from "@/components/providers/NotificationProvider";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/ui/Footer";
 import "./globals.css";
@@ -36,9 +37,11 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <QueryProvider>
           <AuthProvider>
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
+            <NotificationProvider>
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </NotificationProvider>
           </AuthProvider>
         </QueryProvider>
       </body>

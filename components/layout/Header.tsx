@@ -45,7 +45,7 @@ export function Header() {
                     <span className="text-sm text-gray-700">
                       {user.displayName}
                     </span>
-                    <Link href={ROUTES.ADMIN}>
+                    <Link href={user.role === 'admin' ? ROUTES.ADMIN : ROUTES.DASHBOARD}>
                       <Button variant="outline" size="sm">
                         Dashboard
                       </Button>
@@ -94,7 +94,7 @@ export function Header() {
                         <p className="text-sm text-gray-700 mb-2">
                           {user.displayName}
                         </p>
-                        <Link href={ROUTES.ADMIN} className="block">
+                        <Link href={user.role === 'admin' ? ROUTES.ADMIN : ROUTES.DASHBOARD} className="block">
                           <Button variant="outline" size="sm" className="w-full">
                             Dashboard
                           </Button>

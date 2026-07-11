@@ -9,7 +9,7 @@ import { listUsers, updateUserRole } from "@/lib/services/users";
 import type { UserProfile, UserRole } from "@/lib/types/user";
 import { Button } from "@/components/ui/Button";
 
-const roles: UserRole[] = ["admin", "editor", "viewer"];
+const roles: UserRole[] = ["admin", "editor", "author", "viewer"];
 
 export default function AdminPage() {
   const router = useRouter();

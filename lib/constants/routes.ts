@@ -14,7 +14,8 @@ export const ROUTES = {
   AUTHORS: '/authors',
   AUTHOR_DETAIL: (id: string) => `/authors/${id}`,
   
-  // Admin routes
+  // Member and admin routes
+  DASHBOARD: '/dashboard',
   ADMIN: '/admin',
   ADMIN_DASHBOARD: '/admin/dashboard',
   ADMIN_CASES: '/admin/cases',

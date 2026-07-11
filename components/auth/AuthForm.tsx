@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn, signUp, signInWithGoogle } from "@/lib/firebase/auth";
-import { upsertUserProfile } from "@/lib/services/users";
+import { getUserProfile, upsertUserProfile } from "@/lib/services/users";
+import { useNotification } from "@/components/providers/NotificationProvider";
 
 interface AuthFormProps {
   mode: "login" | "register";
@@ -12,6 +13,7 @@ interface AuthFormProps {
 
 export default function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter();
+  const { showNotification } = useNotification();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -24,24 +26,34 @@ export default function AuthForm({ mode }: AuthFormProps) {
     setLoading(true);
 
     try {
+      let user;
       if (mode === "register") {
-        const user = await signUp(email, password, name);
+        user = await signUp(email, password, name);
         await upsertUserProfile({
           id: user.uid,
           email: user.email || email,
           displayName: user.displayName || name,
-          role: "viewer",
+          role: "author",
           isEmailVerified: user.emailVerified,
           createdAt: new Date(),
           updatedAt: new Date(),
         } as any);
       } else {
-        await signIn(email, password);
+        user = await signIn(email, password);
       }
 
-      router.push("/admin");
+      const profile = await getUserProfile(user.uid);
+      const targetRoute = profile?.role === "admin" ? "/admin" : "/dashboard";
+      showNotification(
+        mode === "register"
+          ? "Account created successfully. Welcome to Appellate Tea."
+          : "Signed in successfully. Redirecting to your workspace.",
+        "success"
+      );
+      router.push(targetRoute);
     } catch (err: any) {
       setError(err.message || "Authentication failed");
+      showNotification(err.message || "Authentication failed", "error");
     } finally {
       setLoading(false);
     }
@@ -62,9 +74,13 @@ export default function AuthForm({ mode }: AuthFormProps) {
         createdAt: new Date(),
         updatedAt: new Date(),
       } as any);
-      router.push("/admin");
+      const profile = await getUserProfile(user.uid);
+      const targetRoute = profile?.role === "admin" ? "/admin" : "/dashboard";
+      showNotification("Signed in with Google. Redirecting to your workspace.", "success");
+      router.push(targetRoute);
     } catch (err: any) {
       setError(err.message || "Google login failed");
+      showNotification(err.message || "Google login failed", "error");
     } finally {
       setLoading(false);
     }
