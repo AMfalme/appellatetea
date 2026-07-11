@@ -29,25 +29,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (fbUser) {
         const existingProfile = await getUserProfile(fbUser.uid);
-        const profile: UserProfile = existingProfile || {
-          id: fbUser.uid,
-          email: fbUser.email || '',
-          displayName: fbUser.displayName || 'User',
-          photoURL: fbUser.photoURL || undefined,
-          role: 'viewer',
-          isEmailVerified: fbUser.emailVerified,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
-
-        if (!existingProfile) {
-          await upsertUserProfile({
-            ...profile,
+        
+        if (existingProfile) {
+          // Preserve existing role from Firestore
+          setUser({
+            ...existingProfile,
             lastLoginAt: new Date(),
           });
+        } else {
+          // Create new profile with default viewer role
+          const newProfile: UserProfile = {
+            id: fbUser.uid,
+            email: fbUser.email || '',
+            displayName: fbUser.displayName || 'User',
+            photoURL: fbUser.photoURL || undefined,
+            role: 'viewer',
+            isEmailVerified: fbUser.emailVerified,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            lastLoginAt: new Date(),
+          };
+          
+          await upsertUserProfile(newProfile);
+          setUser(newProfile);
         }
-
-        setUser(profile);
       } else {
         setUser(null);
       }
