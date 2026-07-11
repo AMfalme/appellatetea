@@ -32,13 +32,18 @@ export async function upsertUserProfile(user: UserProfile): Promise<void> {
   const existingData = existing.exists() ? existing.data() : null;
   const existingRole = existingData?.role as UserRole | undefined;
   
-  await setDoc(ref, {
-    ...user,
-    role: user.role || existingRole || 'viewer',
-    createdAt: existing.exists() ? existingData?.createdAt : user.createdAt || new Date(),
-    updatedAt: new Date(),
-    lastLoginAt: new Date(),
-  }, { merge: true });
+  // Remove undefined values to prevent Firestore errors
+  const cleanUser = Object.fromEntries(
+    Object.entries({
+      ...user,
+      role: user.role || existingRole || 'viewer',
+      createdAt: existing.exists() ? existingData?.createdAt : user.createdAt || new Date(),
+      updatedAt: new Date(),
+      lastLoginAt: new Date(),
+    }).filter(([_, v]) => v !== undefined)
+  );
+  
+  await setDoc(ref, cleanUser as any, { merge: true });
 }
 
 export async function updateUserRole(uid: string, role: UserRole): Promise<void> {
