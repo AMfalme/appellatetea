@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
-import { MainNav } from '@/components/ui/Navigation';
+import { MainNav, AdminNavLink } from '@/components/ui/Navigation';
 import { Button } from '@/components/ui/Button';
 import { ROUTES } from '@/lib/constants/routes';
 import { useAuth } from '@/components/providers/AuthProvider';
@@ -34,6 +34,7 @@ export function Header() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:space-x-8">
             <MainNav />
+            {!loading && user?.role === 'admin' && <AdminNavLink />}
           </div>
           
           {/* Auth Section */}
@@ -84,9 +85,14 @@ export function Header() {
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200">
-            <nav className="flex flex-col space-y-4">
-              <MainNav className="flex-col items-start space-y-4 space-x-0" />
-              <div className="pt-4 border-t border-gray-200">
+              <nav className="flex flex-col space-y-4">
+                <MainNav className="flex-col items-start space-y-4 space-x-0" />
+                {!loading && user?.role === 'admin' && (
+                  <div className="pt-2">
+                    <AdminNavLink className="text-[#8B1E1E]" />
+                  </div>
+                )}
+                <div className="pt-4 border-t border-gray-200">
                 {!loading && (
                   <>
                     {user ? (

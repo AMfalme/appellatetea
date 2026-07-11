@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: fbUser.email || '',
           displayName: fbUser.displayName || 'User',
           photoURL: fbUser.photoURL || undefined,
-          role: 'author',
+          role: 'viewer',
           isEmailVerified: fbUser.emailVerified,
           createdAt: new Date(),
           updatedAt: new Date(),

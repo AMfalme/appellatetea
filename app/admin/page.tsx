@@ -6,10 +6,11 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { signOut } from "@/lib/firebase/auth";
 import { listUsers, updateUserRole } from "@/lib/services/users";
+import { getAdminPlaceholderNotifications } from "@/lib/services/newspaper";
 import type { UserProfile, UserRole } from "@/lib/types/user";
 import { Button } from "@/components/ui/Button";
 
-const roles: UserRole[] = ["admin", "editor", "author", "viewer"];
+const roles: UserRole[] = ["admin", "editor", "viewer"];
 
 export default function AdminPage() {
   const router = useRouter();
@@ -32,6 +33,7 @@ export default function AdminPage() {
 
     if (!loading && user?.role === "admin") {
       void loadMembers();
+      void loadNotifications();
     }
   }, [loading, user, router]);
 
@@ -45,6 +47,25 @@ export default function AdminPage() {
   };
 
   const canManage = useMemo(() => user?.role === "admin", [user]);
+
+  const [sectionNotifications, setSectionNotifications] = useState<Array<{
+    section: string;
+    label: string;
+    message: string;
+  }>>([]);
+
+  const loadNotifications = async () => {
+    try {
+      const notifications = await getAdminPlaceholderNotifications();
+      setSectionNotifications(notifications.map(n => ({
+        section: n.section,
+        label: n.label,
+        message: n.message,
+      })));
+    } catch (err) {
+      console.error('Failed to load notifications:', err);
+    }
+  };
 
   const handleRoleChange = async (member: UserProfile, role: UserRole) => {
     if (!canManage) return;
@@ -74,8 +95,26 @@ export default function AdminPage() {
     return <div className="min-h-screen bg-neutral-50 px-6 py-24 text-sm text-neutral-600">Loading workspace…</div>;
   }
 
-  if (!user || user.role !== "admin") {
+  if (!user) {
     return null;
+  }
+
+  if (user.role !== "admin") {
+    return (
+      <div className="min-h-screen bg-neutral-50 px-6 py-24">
+        <div className="mx-auto max-w-6xl">
+          <div className="rounded border border-red-200 bg-red-50 p-8 shadow-sm">
+            <h1 className="font-serif text-2xl text-neutral-900">Access Denied</h1>
+            <p className="mt-3 text-sm text-neutral-600">
+              You need admin privileges to access this page.
+            </p>
+            <p className="mt-2 text-xs text-neutral-500">
+              Your current role: {user.role}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -137,18 +176,36 @@ export default function AdminPage() {
           </div>
 
           <div className="space-y-6">
-            <div className="rounded border border-neutral-200 bg-white p-8 shadow-sm">
-              <h2 className="font-serif text-2xl text-neutral-900">Publishing queue</h2>
-              <p className="mt-2 text-sm text-neutral-600">Article submissions and editorial approvals will appear here.</p>
-              <div className="mt-6 rounded border border-dashed border-neutral-300 p-6 text-sm text-neutral-600">
-                No drafts are pending review yet.
+            <div className="rounded border border-yellow-200 bg-yellow-50 p-6 shadow-sm">
+              <h2 className="font-serif text-2xl text-yellow-900">⚠️ Placeholder Alerts</h2>
+              <p className="mt-2 text-sm text-yellow-700">Sections that need content assigned.</p>
+              {sectionNotifications.length > 0 ? (
+                <div className="mt-4 space-y-3">
+                  {sectionNotifications.map((notification) => (
+                    <div key={notification.section} className="rounded border border-yellow-300 bg-white p-3">
+                      <p className="font-medium text-yellow-900">{notification.label}</p>
+                      <p className="mt-1 text-xs text-yellow-700">{notification.message}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-4 text-sm text-yellow-600">All sections have content assigned. Great job!</p>
+              )}
+              <div className="mt-4">
+                <Link href="/admin/newspaper" className="text-sm text-[#8B1E1E] underline underline-offset-4">
+                  Manage newspaper layout →
+                </Link>
               </div>
             </div>
             <div className="rounded border border-neutral-200 bg-white p-8 shadow-sm">
               <h2 className="font-serif text-2xl text-neutral-900">Quick actions</h2>
               <div className="mt-4 flex flex-col gap-3">
-                <Button variant="outline">Create article</Button>
-                <Button variant="outline">Review submissions</Button>
+                <Link href="/admin/newspaper">
+                  <Button variant="outline" className="w-full">Manage Newspaper Layout</Button>
+                </Link>
+                <Link href="/admin/cases/new">
+                  <Button variant="outline" className="w-full">Create article</Button>
+                </Link>
               </div>
             </div>
           </div>

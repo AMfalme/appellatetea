@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Clock3 } from "lucide-react";
 import { motion } from "framer-motion";
+import { PlaceholderBadge } from "@/components/home/PlaceholderBadge";
 
 const recommendations = [
   {
@@ -25,7 +26,11 @@ const recommendations = [
   },
 ];
 
-export default function EditorialRecommendationsSection() {
+interface EditorialRecommendationsProps {
+  isPlaceholder?: boolean;
+}
+
+export default function EditorialRecommendationsSection({ isPlaceholder = false }: EditorialRecommendationsProps) {
   return (
     <section className="bg-[#faf8f3] border-b border-neutral-200">
 
@@ -33,14 +38,14 @@ export default function EditorialRecommendationsSection() {
 
         {/* Heading */}
 
-        <div className="flex items-center gap-5 mb-16">
+        <div className="flex items-center gap-3 mb-16">
 
           <div className="flex-1 h-px bg-neutral-300" />
 
           <span className="uppercase tracking-[0.35em] text-xs font-semibold text-[#8B1E1E]">
             Editor's Desk
           </span>
-
+          {isPlaceholder && <PlaceholderBadge />}
           <div className="flex-1 h-px bg-neutral-300" />
 
         </div>

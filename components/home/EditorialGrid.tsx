@@ -5,7 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Clock3, CalendarDays, User2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { getHomePageContent } from "@/lib/services/articles";
+import { getPublishedArticles } from "@/lib/services/articles";
+import { getSectionArticle } from "@/lib/services/newspaper";
 import type { Article } from "@/lib/types/article";
 
 const leadStory = {
@@ -92,9 +93,9 @@ export default function EditorialGrid() {
   const [briefArticles, setBriefArticles] = useState<Article[]>([]);
 
   useEffect(() => {
-    void getHomePageContent().then((content) => {
-      setMainArticles(content.mainArticles);
-      setBriefArticles(content.briefArticles);
+    void getPublishedArticles(10).then((articles) => {
+      setMainArticles(articles.slice(0, 3));
+      setBriefArticles(articles.slice(3, 6));
     });
   }, []);
 

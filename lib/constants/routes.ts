@@ -23,6 +23,7 @@ export const ROUTES = {
   ADMIN_CASE_EDIT: (id: string) => `/admin/cases/${id}`,
   ADMIN_AUTHORS: '/admin/authors',
   ADMIN_SETTINGS: '/admin/settings',
+  ADMIN_NEWSPAPER: '/admin/newspaper',
 } as const;
 
 export const CASE_STATUSES = {

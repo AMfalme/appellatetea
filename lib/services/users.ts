@@ -26,8 +26,15 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
 
 export async function upsertUserProfile(user: UserProfile): Promise<void> {
   const ref = doc(db, USERS_COLLECTION, user.id);
+  
+  // Get existing profile to preserve role if it exists
+  const existing = await getDoc(ref);
+  const existingData = existing.exists() ? existing.data() : null;
+  const existingRole = existingData?.role as UserRole | undefined;
+  
   await setDoc(ref, {
     ...user,
+    role: user.role || existingRole || 'viewer',
     createdAt: user.createdAt || new Date(),
     updatedAt: new Date(),
   }, { merge: true });

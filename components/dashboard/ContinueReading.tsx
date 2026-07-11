@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Bookmark, Clock3 } from "lucide-react";
+import { PlaceholderBadge } from "@/components/home/PlaceholderBadge";
 
 interface ReadingContinueProps {
   article?: {
@@ -13,6 +14,7 @@ interface ReadingContinueProps {
     readTime: string;
     href: string;
   };
+  isPlaceholder?: boolean;
 }
 
 export default function ContinueReadingPanel({
@@ -26,6 +28,7 @@ export default function ContinueReadingPanel({
     readTime: "14 min read",
     href: "/articles/how-administrative-justice-could-redefine-governance",
   },
+  isPlaceholder = false,
 }: ReadingContinueProps) {
   return (
     <section className="bg-[#faf8f3] border-b border-neutral-200">
@@ -43,11 +46,14 @@ export default function ContinueReadingPanel({
             className="lg:col-span-8"
           >
 
-            <p className="uppercase tracking-[0.35em] text-xs font-semibold text-[#8B1E1E] mb-6">
+            <div className="flex items-center gap-3 mb-6">
+              <p className="uppercase tracking-[0.35em] text-xs font-semibold text-[#8B1E1E]">
 
-              Continue Reading
+                Continue Reading
 
-            </p>
+              </p>
+              {isPlaceholder && <PlaceholderBadge />}
+            </div>
 
             <h2 className="font-serif text-4xl md:text-6xl leading-tight text-neutral-900">
 

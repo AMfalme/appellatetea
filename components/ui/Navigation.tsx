@@ -43,3 +43,11 @@ export function MainNav({ className }: MainNavProps) {
     </nav>
   );
 }
+
+export function AdminNavLink({ className }: { className?: string }) {
+  return (
+    <Link href={ROUTES.ADMIN} className={cn('text-sm font-medium text-[#8B1E1E] hover:text-[#8B1E1E]/80', className)}>
+      Admin
+    </Link>
+  );
+}

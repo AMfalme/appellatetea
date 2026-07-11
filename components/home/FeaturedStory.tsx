@@ -5,14 +5,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Clock3, CalendarDays, User2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { getFeaturedArticle } from "@/lib/services/articles";
+import { getSectionArticle } from "@/lib/services/newspaper";
+import { PlaceholderBadge } from "./PlaceholderBadge";
 import type { Article } from "@/lib/types/article";
 
 export default function FeaturedStory() {
   const [article, setArticle] = useState<Article | null>(null);
+  const [isPlaceholder, setIsPlaceholder] = useState(false);
 
   useEffect(() => {
-    void getFeaturedArticle().then(setArticle);
+    void getSectionArticle('featured').then((result) => {
+      setArticle(result.article);
+      setIsPlaceholder(result.isPlaceholder);
+    });
   }, []);
 
   if (!article) return null;
@@ -74,9 +79,12 @@ export default function FeaturedStory() {
             className="lg:col-span-5"
           >
 
-            <p className="uppercase tracking-[0.3em] text-xs text-[#8B1E1E] font-semibold">
-              {article.category}
-            </p>
+            <div className="flex items-center gap-3">
+              <p className="uppercase tracking-[0.3em] text-xs text-[#8B1E1E] font-semibold">
+                {article.category}
+              </p>
+              <PlaceholderBadge />
+            </div>
 
             <h2 className="mt-5 font-serif text-5xl leading-tight text-neutral-900">
               {article.title}

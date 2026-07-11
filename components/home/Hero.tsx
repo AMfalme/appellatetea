@@ -5,14 +5,19 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { getFeaturedArticle } from "@/lib/services/articles";
+import { getSectionArticle } from "@/lib/services/newspaper";
+import { PlaceholderBadge } from "./PlaceholderBadge";
 import type { Article } from "@/lib/types/article";
 
 export default function Hero() {
   const [article, setArticle] = useState<Article | null>(null);
+  const [isPlaceholder, setIsPlaceholder] = useState(false);
 
   useEffect(() => {
-    void getFeaturedArticle().then(setArticle);
+    void getSectionArticle('lead').then((result) => {
+      setArticle(result.article);
+      setIsPlaceholder(result.isPlaceholder);
+    });
   }, []);
 
   if (!article) return null;
@@ -37,6 +42,7 @@ export default function Hero() {
                 <span className="uppercase tracking-[0.3em] text-xs font-bold text-[#8B1E1E]">
                   01 • The Lead
                 </span>
+                <PlaceholderBadge />
               </div>
               {/* Catchy Newspaper-Style Hero Image Wrapper */}
               <div className="relative w-full aspect-[4/3] rounded bg-neutral-100 overflow-hidden border border-neutral-200 shadow-sm mt-8">
