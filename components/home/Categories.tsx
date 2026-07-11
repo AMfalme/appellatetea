@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Bookmark } from "lucide-react";
 import { motion } from "framer-motion";
+import { PlaceholderBadge } from "./PlaceholderBadge";
 
 const categories = [
   {
@@ -55,9 +56,10 @@ export default function Categories() {
 
           <div className="flex-1 h-px bg-neutral-300" />
 
-          <span className="uppercase tracking-[0.4em] text-xs font-semibold text-[#8B1E1E]">
-            05 • Browse the Publication
-          </span>
+            <span className="uppercase tracking-[0.4em] text-xs font-semibold text-[#8B1E1E]">
+              Explore Topics
+            </span>
+            <PlaceholderBadge />
 
           <div className="flex-1 h-px bg-neutral-300" />
 

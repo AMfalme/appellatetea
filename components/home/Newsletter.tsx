@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight, Newspaper } from "lucide-react";
+import { PlaceholderBadge } from "./PlaceholderBadge";
 
 export default function Newsletter() {
   return (
@@ -31,6 +32,7 @@ export default function Newsletter() {
                 07 • The Morning Brief
 
               </span>
+              <PlaceholderBadge />
 
             </div>
 

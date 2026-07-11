@@ -7,6 +7,7 @@ import {
   Newspaper,
   Scale,
 } from "lucide-react";
+import { PlaceholderBadge } from "./PlaceholderBadge";
 
 const sections = [
   "Supreme Court",
@@ -27,11 +28,14 @@ export default function FooterCTA() {
 
         <div className="max-w-6xl mx-auto px-6 lg:px-10 py-24 text-center">
 
-          <p className="uppercase tracking-[0.4em] text-xs text-[#d24a43] mb-8">
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <p className="uppercase tracking-[0.4em] text-xs text-[#d24a43]">
 
-            08 • The Final Word
+              08 • The Final Word
 
-          </p>
+            </p>
+            <PlaceholderBadge />
+          </div>
 
           <h2 className="font-serif text-5xl md:text-6xl text-white leading-tight">
 

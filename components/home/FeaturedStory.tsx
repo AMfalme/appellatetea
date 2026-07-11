@@ -20,7 +20,15 @@ export default function FeaturedStory() {
     });
   }, []);
 
-  if (!article) return null;
+  // Always render with fallback placeholder content
+  const displayArticle = article || {
+    title: "The Quiet Constitutional Revolution Hidden Inside Recent Judicial Decisions",
+    excerpt: "Exploring how recent Supreme Court decisions are reshaping administrative law and constitutional governance across the continent.",
+    category: "Supreme Court",
+    readingTime: 12,
+    slug: "featured-placeholder",
+    heroImage: { url: "/media/supreme.jpg", alt: "Supreme Court building" }
+  };
 
   return (
     <section className=" py-28 border-b border-neutral-200">
@@ -54,8 +62,8 @@ export default function FeaturedStory() {
             <div className="overflow-hidden">
 
               <Image
-                src={article.heroImage?.url || "/media/supreme.jpg"}
-                alt={article.heroImage?.alt || article.title}
+                src={displayArticle.heroImage?.url || "/media/supreme.jpg"}
+                alt={displayArticle.heroImage?.alt || displayArticle.title}
                 width={1400}
                 height={900}
                 className="aspect-[4/3] object-cover w-full transition-transform duration-700 hover:scale-[1.03]"
@@ -81,17 +89,17 @@ export default function FeaturedStory() {
 
             <div className="flex items-center gap-3">
               <p className="uppercase tracking-[0.3em] text-xs text-[#8B1E1E] font-semibold">
-                {article.category}
+                {displayArticle.category}
               </p>
               <PlaceholderBadge />
             </div>
 
             <h2 className="mt-5 font-serif text-5xl leading-tight text-neutral-900">
-              {article.title}
+              {displayArticle.title}
             </h2>
 
             <p className="mt-8 text-lg leading-9 text-neutral-700">
-              {article.excerpt}
+              {displayArticle.excerpt}
             </p>
 
             {/* Metadata */}
@@ -100,17 +108,17 @@ export default function FeaturedStory() {
 
               <div className="flex items-center gap-2">
                 <User2 size={16} />
-                {article.authorName}
+                Editorial Desk
               </div>
 
               <div className="flex items-center gap-2">
                 <Clock3 size={16} />
-                {article.readingTime} min read
+                {displayArticle.readingTime} min read
               </div>
 
               <div className="flex items-center gap-2">
                 <CalendarDays size={16} />
-                {new Date(article.publishedAt || Date.now()).toLocaleDateString("en", { day: "numeric", month: "long", year: "numeric" })}
+                {new Date().toLocaleDateString("en", { day: "numeric", month: "long", year: "numeric" })}
               </div>
 
               <div>
@@ -124,7 +132,7 @@ export default function FeaturedStory() {
             <div className="my-12 h-px bg-neutral-300" />
 
             <Link
-              href={`/articles/${article.slug}`}
+              href={displayArticle.slug && !isPlaceholder ? `/articles/${displayArticle.slug}` : '#'}
               className="inline-flex items-center gap-3 font-semibold text-[#8B1E1E] group"
             >
               Read the Full Analysis

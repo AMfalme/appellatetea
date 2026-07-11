@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Scale, Landmark, Globe2 } from "lucide-react";
+import { PlaceholderBadge } from "./PlaceholderBadge";
 
 const principles = [
   {
@@ -37,9 +38,12 @@ export default function QuoteSection() {
           className="text-center max-w-4xl mx-auto"
         >
 
-          <p className="uppercase tracking-[0.4em] text-xs text-red-200 mb-8">
-            06 • Why Appellate Tea Exists
-          </p>
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <p className="uppercase tracking-[0.4em] text-xs text-red-200">
+              06 • Why Appellate Tea Exists
+            </p>
+            <PlaceholderBadge />
+          </div>
 
           <h2 className="font-serif text-5xl md:text-6xl leading-tight">
 

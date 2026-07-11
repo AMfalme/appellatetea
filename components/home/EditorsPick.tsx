@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Clock3, Quote } from "lucide-react";
 import { motion } from "framer-motion";
+import { PlaceholderBadge } from "./PlaceholderBadge";
 
 const essays = [
   {
@@ -33,17 +34,18 @@ export default function EditorsPick() {
 
         {/* Heading */}
 
-        <div className="flex items-center gap-5 mb-20">
+          <div className="flex items-center gap-5 mb-20">
 
-          <div className="flex-1 h-px bg-neutral-700" />
+            <div className="flex-1 h-px bg-neutral-700" />
 
-          <span className="uppercase tracking-[0.4em] text-xs font-semibold text-[#d24a43]">
-            04 • From the Editor's Desk
-          </span>
+            <span className="uppercase tracking-[0.4em] text-xs font-semibold text-[#d24a43]">
+             04 • From the Editor's Desk
+            </span>
+            <PlaceholderBadge />
 
-          <div className="flex-1 h-px bg-neutral-700" />
+            <div className="flex-1 h-px bg-neutral-700" />
 
-        </div>
+          </div>
 
         {/* Editorial */}
 

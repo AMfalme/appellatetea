@@ -20,7 +20,15 @@ export default function Hero() {
     });
   }, []);
 
-  if (!article) return null;
+  // Always render with fallback placeholder content
+  const displayArticle = article || {
+    title: "How a Quiet Supreme Court Decision Could Redefine Administrative Justice Across Africa",
+    excerpt: "Behind seemingly technical constitutional language lies a judgment capable of reshaping administrative law, accountability, and institutional independence for decades to come.",
+    category: "Constitutional Law",
+    readingTime: 14,
+    slug: "lead-placeholder",
+    heroImage: { url: "/media/justice.png", alt: "Justice scales" }
+  };
 
   return (
     <section className="relative overflow-hidden bg-white">
@@ -46,14 +54,14 @@ export default function Hero() {
               </div>
               {/* Catchy Newspaper-Style Hero Image Wrapper */}
               <div className="relative w-full aspect-[4/3] rounded bg-neutral-100 overflow-hidden border border-neutral-200 shadow-sm mt-8">
-                <Image
-                  src={article.heroImage?.url || "/media/justice.png"}
-                  alt={article.heroImage?.alt || article.title}
-                  fill
-                  className="object-cover grayscale hover:grayscale-0 transition-all duration-500 ease-in-out"
-                  sizes="(max-w-1024px) 100vw, 33vw"
-                  priority
-                />
+              <Image
+                src={displayArticle.heroImage?.url || "/media/justice.png"}
+                alt={displayArticle.heroImage?.alt || displayArticle.title}
+                fill
+                className="object-cover grayscale hover:grayscale-0 transition-all duration-500 ease-in-out"
+                sizes="(max-w-1024px) 100vw, 33vw"
+                priority
+              />
               </div>
               
               <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-neutral-900 leading-[1.1] tracking-tight">
@@ -75,19 +83,19 @@ export default function Hero() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.15 }}
             >
-              <Link href={`/articles/${article.slug}`} className="group block space-y-6">
+              <Link href={displayArticle.slug && !isPlaceholder ? `/articles/${displayArticle.slug}` : '#'} className="group block space-y-6">
                 <div className="flex items-center gap-4 text-xs uppercase tracking-widest text-neutral-500 font-medium">
-                  <span>{article.category}</span>
+                  <span>{displayArticle.category}</span>
                   <span>•</span>
-                  <span>{article.readingTime} min read</span>
+                  <span>{displayArticle.readingTime} min read</span>
                 </div>
 
                 <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-neutral-900 leading-[1.15] tracking-tight group-hover:text-[#8B1E1E] transition-colors duration-300">
-                  {article.title}
+                  {displayArticle.title}
                 </h2>
 
                 <p className="text-neutral-600 text-lg md:text-xl leading-relaxed max-w-3xl">
-                  {article.excerpt}
+                  {displayArticle.excerpt}
                 </p>
 
                 <div className="inline-flex items-center gap-3 text-[#8B1E1E] font-semibold tracking-wider text-sm uppercase pt-4 border-b border-transparent group-hover:border-[#8B1E1E] transition-all">

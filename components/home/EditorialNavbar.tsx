@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Menu, Search, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { PlaceholderBadge } from "./PlaceholderBadge";
 
 const navigation = [
   { title: "Latest", href: "/articles" },
@@ -35,7 +36,10 @@ export default function EditorialNavbar() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-2 py-3 text-[11px] uppercase tracking-[0.22em] text-neutral-500">
             <span>Global Edition</span>
             <span>{today}</span>
-            <span>Volume I · Issue 001</span>
+            <div className="flex items-center gap-3">
+              <span>Volume I · Issue 001</span>
+              <PlaceholderBadge />
+            </div>
           </div>
         </div>
       </div>
