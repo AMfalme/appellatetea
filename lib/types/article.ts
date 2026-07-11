@@ -16,6 +16,7 @@ export interface ArticleBase {
   bodyJson?: Record<string, unknown>;
   heroImage?: ArticleImage;
   coverImage?: ArticleImage;
+  newspaperSection?: string;
   category?: string;
   categoryId?: string;
   categorySlug?: string;
@@ -26,6 +27,7 @@ export interface ArticleBase {
   status: ArticleStatus;
   published?: boolean;
   featured?: boolean;
+  live?: boolean;
   readingTime?: number;
   publishedAt?: string;
   createdAt?: string;

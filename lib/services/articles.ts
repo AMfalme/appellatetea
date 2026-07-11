@@ -1,4 +1,4 @@
-import { collection, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, limit, orderBy, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { Article, HomePageContent } from '@/lib/types/article';
 
@@ -41,12 +41,20 @@ export async function getPublishedArticles(limitCount = 8): Promise<Article[]> {
   const q = query(
     collection(db, COLLECTION),
     where('status', '==', 'published'),
-    orderBy('publishedAt', 'desc'),
     limit(limitCount)
   );
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map(normalizeArticle);
+  const articles = snapshot.docs.map(normalizeArticle);
+  
+  // Sort in memory to avoid requiring a Firestore composite index
+  return articles
+    .sort((a, b) => {
+      const dateA = new Date(b.publishedAt || 0).getTime();
+      const dateB = new Date(a.publishedAt || 0).getTime();
+      return dateA - dateB;
+    })
+    .slice(0, limitCount);
 }
 
 export async function getFeaturedArticle(): Promise<Article | null> {
@@ -54,17 +62,27 @@ export async function getFeaturedArticle(): Promise<Article | null> {
     collection(db, COLLECTION),
     where('status', '==', 'published'),
     where('featured', '==', true),
-    orderBy('publishedAt', 'desc'),
-    limit(1)
+    limit(20)
   );
 
   const snapshot = await getDocs(q);
-  if (snapshot.empty) {
+  const articles = snapshot.docs.map(normalizeArticle);
+  
+  // Sort in memory to avoid requiring a Firestore composite index
+  const featured = articles
+    .sort((a, b) => {
+      const dateA = new Date(b.publishedAt || 0).getTime();
+      const dateB = new Date(a.publishedAt || 0).getTime();
+      return dateA - dateB;
+    })
+    .slice(0, 1);
+  
+  if (featured.length === 0) {
     const fallback = await getPublishedArticles(1);
     return fallback[0] || null;
   }
 
-  return normalizeArticle(snapshot.docs[0]);
+  return featured[0];
 }
 
 export async function getHomePageContent(): Promise<HomePageContent> {
@@ -113,4 +131,68 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
   const snapshot = await getDocs(q);
   if (snapshot.empty) return null;
   return normalizeArticle(snapshot.docs[0]);
+}
+
+export async function getDraftArticles(limitCount = 50): Promise<Article[]> {
+  const q = query(
+    collection(db, COLLECTION),
+    where('status', 'in', ['draft', 'pending_review', 'archived']),
+    limit(limitCount)
+  );
+
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(normalizeArticle);
+}
+
+export async function getArticleById(id: string): Promise<Article | null> {
+  const docRef = doc(db, COLLECTION, id);
+  const snapshot = await getDoc(docRef);
+  
+  if (!snapshot.exists()) return null;
+  return normalizeArticle(snapshot);
+}
+
+export async function createArticle(data: Partial<Article>): Promise<string> {
+  const now = new Date();
+  const docRef = doc(collection(db, COLLECTION));
+  
+  const articleData = {
+    ...data,
+    createdAt: now,
+    updatedAt: now,
+  };
+  
+  // Remove undefined values
+  const cleanData = Object.fromEntries(
+    Object.entries(articleData).filter(([_, v]) => v !== undefined)
+  );
+  
+  await setDoc(docRef, cleanData as any);
+  return docRef.id;
+}
+
+export async function updateArticle(id: string, data: Partial<Article>): Promise<void> {
+  const docRef = doc(db, COLLECTION, id);
+  
+  const updateData = {
+    ...data,
+    updatedAt: new Date(),
+  };
+  
+  // Remove undefined values
+  const cleanData = Object.fromEntries(
+    Object.entries(updateData).filter(([_, v]) => v !== undefined)
+  );
+  
+  await updateDoc(docRef, cleanData as any);
+}
+
+export async function deleteArticle(id: string): Promise<void> {
+  const docRef = doc(db, COLLECTION, id);
+  
+  // Soft delete by setting live to false
+  await updateDoc(docRef, {
+    live: false,
+    updatedAt: new Date(),
+  });
 }
