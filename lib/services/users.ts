@@ -35,8 +35,9 @@ export async function upsertUserProfile(user: UserProfile): Promise<void> {
   await setDoc(ref, {
     ...user,
     role: user.role || existingRole || 'viewer',
-    createdAt: user.createdAt || new Date(),
+    createdAt: existing.exists() ? existingData?.createdAt : user.createdAt || new Date(),
     updatedAt: new Date(),
+    lastLoginAt: new Date(),
   }, { merge: true });
 }
 

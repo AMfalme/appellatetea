@@ -31,12 +31,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const existingProfile = await getUserProfile(fbUser.uid);
         
         if (existingProfile) {
-          // Preserve existing role from Firestore
-          setUser({
+          console.log('[AuthProvider] Existing profile found:', existingProfile);
+          // Preserve existing role from Firestore and update login timestamp
+          const updatedProfile = {
             ...existingProfile,
             lastLoginAt: new Date(),
-          });
+          };
+          
+          // Update lastLoginAt in Firestore
+          await upsertUserProfile(updatedProfile);
+          console.log('[AuthProvider] Updated profile with lastLoginAt:', updatedProfile);
+          
+          setUser(updatedProfile);
         } else {
+          console.log('[AuthProvider] No existing profile, creating new with viewer role');
           // Create new profile with default viewer role
           const newProfile: UserProfile = {
             id: fbUser.uid,

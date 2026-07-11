@@ -29,15 +29,30 @@ export default function AuthForm({ mode }: AuthFormProps) {
       let user;
       if (mode === "register") {
         user = await signUp(email, password, name);
-        await upsertUserProfile({
-          id: user.uid,
-          email: user.email || email,
-          displayName: user.displayName || name,
-          role: "author",
-          isEmailVerified: user.emailVerified,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        } as any);
+        
+        // Check if profile exists to preserve role
+        const existingProfile = await getUserProfile(user.uid);
+        
+        if (existingProfile) {
+          // Update with new info but preserve existing role
+          await upsertUserProfile({
+            ...existingProfile,
+            email: user.email || email,
+            displayName: user.displayName || name,
+            updatedAt: new Date(),
+          });
+        } else {
+          // Create new profile with default viewer role
+          await upsertUserProfile({
+            id: user.uid,
+            email: user.email || email,
+            displayName: user.displayName || name,
+            role: "viewer",
+            isEmailVerified: user.emailVerified,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          } as any);
+        }
       } else {
         user = await signIn(email, password);
       }
@@ -65,15 +80,30 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
     try {
       const user = await signInWithGoogle();
-      await upsertUserProfile({
-        id: user.uid,
-        email: user.email || "",
-        displayName: user.displayName || "Google User",
-        role: "viewer",
-        isEmailVerified: user.emailVerified,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      } as any);
+      
+      // Check if profile exists to preserve role
+      const existingProfile = await getUserProfile(user.uid);
+      
+      if (existingProfile) {
+        // Update lastLoginAt but preserve existing role
+        await upsertUserProfile({
+          ...existingProfile,
+          lastLoginAt: new Date(),
+        });
+      } else {
+        // Create new profile with default viewer role
+        await upsertUserProfile({
+          id: user.uid,
+          email: user.email || "",
+          displayName: user.displayName || "Google User",
+          role: "viewer",
+          isEmailVerified: user.emailVerified,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          lastLoginAt: new Date(),
+        } as any);
+      }
+      
       const profile = await getUserProfile(user.uid);
       const targetRoute = profile?.role === "admin" ? "/admin" : "/dashboard";
       showNotification("Signed in with Google. Redirecting to your workspace.", "success");
