@@ -138,9 +138,9 @@ export default function EditorialNavbar() {
             </span>
           </div>
         </div>
+        <LaunchCountdown />
       </motion.div>
 
-      <LaunchCountdown />
 
       <SearchOverlay isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
 
