@@ -22,8 +22,6 @@ export default function DisclaimerBanner() {
   });
 
   useEffect(() => {
-    // Show disclaimer immediately on every page navigation
-    // Dismissal only hides it for the current page load
     setIsVisible(true);
   }, [pathname]);
 
@@ -57,7 +55,7 @@ export default function DisclaimerBanner() {
   const handleFeedbackSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!feedbackText.trim()) return;
-    
+
     try {
       const existing = JSON.parse(localStorage.getItem("feedback") || "[]");
       existing.push({ text: feedbackText, date: new Date().toISOString() });
@@ -89,53 +87,53 @@ export default function DisclaimerBanner() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ type: "spring", damping: 25 }}
-              className="bg-gradient-to-br from-[#8B1E1E] to-[#6b1515] text-white shadow-2xl max-w-lg w-full p-8 sm:p-10"
+              className="bg-gradient-to-br from-[#0d0f32] to-[#0c0827] shadow-2xl max-w-lg w-full p-8 sm:p-10"
             >
               <div className="flex flex-col items-center text-center">
                 <button
                   onClick={handleDismiss}
-                  className="self-end p-2 hover:bg-white/20 transition-colors"
+                  className="self-end p-2 hover:bg-white/10 transition-colors rounded"
                   aria-label="Dismiss"
                 >
-                  <X size={20} />
+                  <X size={20} className="!text-blue-200" />
                 </button>
 
-                <p className="text-base sm:text-lg font-serif leading-snug">
-                  ☕ Welcome to Appellate Tea — a prototype.
+                <p className="text-base sm:text-lg font-serif leading-snug !text-amber-300">
+                  ☕ Welcome to Appellate Tea.
                 </p>
-                <p className="mt-3 text-sm text-red-100 leading-relaxed">
+                <p className="mt-3 text-sm !text-blue-200 leading-relaxed">
                   We are brewing something special. Our official launch is{" "}
-                  <strong className="text-white">August 1, 2026</strong>.
+                  <strong className="!text-amber-300">August 1, 2026</strong>.
                   What you see here is a working preview of the vision — 
                   a carefully crafted newspaper that we hope will help you 
                   understand legal and public policy issues more deeply.
                 </p>
-                <p className="mt-2 text-sm text-red-200 italic">
+                <p className="mt-2 text-sm !text-blue-300 italic">
                   Think of it as a pre-publication proof. 
                   The ink is still drying, but the ideas are ready.
                 </p>
 
                 {/* Countdown */}
-                <div className="mt-6 w-full border-t border-white/20 pt-6">
-                  <p className="text-xs uppercase tracking-[0.25em] text-red-200 mb-3">
+                <div className="mt-6 w-full border-t border-blue-400/20 pt-6">
+                  <p className="text-xs uppercase tracking-[0.25em] !text-blue-300 mb-3">
                     Launching in
                   </p>
                   <div className="flex justify-center gap-4 sm:gap-6">
                     <div className="text-center">
-                      <div className="font-serif text-3xl sm:text-4xl">{timeLeft.days}</div>
-                      <div className="text-xs uppercase tracking-wider text-red-200 mt-1">Days</div>
+                      <div className="font-serif text-3xl sm:text-4xl !text-amber-300">{timeLeft.days}</div>
+                      <div className="text-xs uppercase tracking-wider !text-blue-300 mt-1">Days</div>
                     </div>
                     <div className="text-center">
-                      <div className="font-serif text-3xl sm:text-4xl">{timeLeft.hours}</div>
-                      <div className="text-xs uppercase tracking-wider text-red-200 mt-1">Hours</div>
+                      <div className="font-serif text-3xl sm:text-4xl !text-amber-300">{timeLeft.hours}</div>
+                      <div className="text-xs uppercase tracking-wider !text-blue-300 mt-1">Hours</div>
                     </div>
                     <div className="text-center">
-                      <div className="font-serif text-3xl sm:text-4xl">{timeLeft.minutes}</div>
-                      <div className="text-xs uppercase tracking-wider text-red-200 mt-1">Minutes</div>
+                      <div className="font-serif text-3xl sm:text-4xl !text-amber-300">{timeLeft.minutes}</div>
+                      <div className="text-xs uppercase tracking-wider !text-blue-300 mt-1">Minutes</div>
                     </div>
                     <div className="text-center">
-                      <div className="font-serif text-3xl sm:text-4xl">{timeLeft.seconds}</div>
-                      <div className="text-xs uppercase tracking-wider text-red-200 mt-1">Seconds</div>
+                      <div className="font-serif text-3xl sm:text-4xl !text-amber-300">{timeLeft.seconds}</div>
+                      <div className="text-xs uppercase tracking-wider !text-blue-300 mt-1">Seconds</div>
                     </div>
                   </div>
                 </div>
@@ -143,14 +141,14 @@ export default function DisclaimerBanner() {
                 <div className="mt-6 flex items-center gap-3">
                   <button
                     onClick={() => setShowFeedback(true)}
-                    className="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 text-sm transition-colors"
+                    className="flex items-center gap-2 bg-blue-400/20 hover:bg-blue-400/30 !text-blue-100 px-4 py-2 text-sm transition-colors"
                   >
                     <MessageSquare size={16} />
                     Feedback
                   </button>
                   <button
                     onClick={handleDismiss}
-                    className="bg-white/20 hover:bg-white/30 px-4 py-2 text-sm transition-colors"
+                    className="bg-blue-400/20 hover:bg-blue-400/30 !text-blue-100 px-4 py-2 text-sm transition-colors"
                   >
                     Continue
                   </button>
@@ -234,7 +232,7 @@ export default function DisclaimerBanner() {
       {/* Floating Feedback Button */}
       <button
         onClick={() => setShowFeedback(true)}
-        className="fixed bottom-6 right-6 z-50 bg-[#8B1E1E] text-white p-4 shadow-lg hover:bg-[#731818] transition-colors"
+        className="fixed bottom-6 right-6 z-50 bg-[#0d0f32] text-white p-4 shadow-lg hover:bg-[#1a1d5e] transition-colors"
         aria-label="Give feedback"
       >
         <MessageSquare size={20} />
