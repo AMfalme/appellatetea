@@ -1,5 +1,5 @@
 
-const CLOUDINARY_UPLOAD_PRESET = "your-upload-preset";
+const CLOUDINARY_UPLOAD_PRESET = "appellate_tea";
 
 export interface CloudinaryUploadResult {
   public_id: string;

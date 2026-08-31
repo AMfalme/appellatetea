@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Menu, Search, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { PlaceholderBadge } from "./PlaceholderBadge";
-import LaunchCountdown from "./LaunchCountdown";
+
 import SearchOverlay from "@/components/features/SearchOverlay";
 
 const navigation = [
@@ -138,7 +138,6 @@ export default function EditorialNavbar() {
             </span>
           </div>
         </div>
-        <LaunchCountdown />
       </motion.div>
 
 
