@@ -77,7 +77,7 @@ export default function SubscribersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-50 px-6 py-24 text-sm text-neutral-600">
+      <div className="min-h-screen bg-neutral-50 px-4 py-8 sm:px-6 lg:px-8 text-sm text-neutral-600">
         Loading workspace…
       </div>
     );
@@ -88,7 +88,7 @@ export default function SubscribersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 px-6 py-24">
+    <div className="min-h-screen bg-neutral-50 px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
         {/* Header */}
         <div className="mb-8">

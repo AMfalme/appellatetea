@@ -4,12 +4,15 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, MessageSquare } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { submitFeedback } from "@/lib/services/feedback";
 
 const DISMISSED_KEY = "disclaimer-dismissed";
 const LAUNCH_DATE = new Date("2026-08-01T00:00:00");
 
 export default function DisclaimerBanner() {
   const pathname = usePathname();
+  const { user } = useAuth();
   const [isVisible, setIsVisible] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
@@ -57,6 +60,19 @@ export default function DisclaimerBanner() {
     if (!feedbackText.trim()) return;
 
     try {
+      // Persist to Firestore so the admin feedback inbox can pick it up.
+      // Falls back to a local copy when Firestore is unavailable.
+      try {
+        await submitFeedback({
+          text: feedbackText,
+          authorName: user?.displayName || "Guest",
+          authorEmail: user?.email,
+          userId: user?.id,
+        });
+      } catch (err) {
+        console.error("Failed to save feedback to Firestore:", err);
+      }
+
       const existing = JSON.parse(localStorage.getItem("feedback") || "[]");
       existing.push({ text: feedbackText, date: new Date().toISOString() });
       localStorage.setItem("feedback", JSON.stringify(existing));

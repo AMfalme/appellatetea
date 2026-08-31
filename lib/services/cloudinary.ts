@@ -1,4 +1,4 @@
-const CLOUDINARY_CLOUD_NAME = "your-cloud-name";
+
 const CLOUDINARY_UPLOAD_PRESET = "your-upload-preset";
 
 export interface CloudinaryUploadResult {
@@ -17,13 +17,13 @@ export async function uploadToCloudinary(
   formData.append("folder", folder);
 
   const response = await fetch(
-    `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`,
+    `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/auto/upload`,
     {
       method: "POST",
       body: formData,
     }
   );
-
+  console.log(response);
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error?.message || "Upload failed");
@@ -39,7 +39,7 @@ export async function uploadToCloudinary(
 
 export async function deleteFromCloudinary(publicId: string): Promise<void> {
   const response = await fetch(
-    `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/destroy`,
+    `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/destroy`,
     {
       method: "POST",
       headers: {

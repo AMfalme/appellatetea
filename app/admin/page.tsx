@@ -1,24 +1,72 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import type { ComponentType } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { signOut } from "@/lib/firebase/auth";
-import { listUsers, updateUserRole } from "@/lib/services/users";
+import { listUsers } from "@/lib/services/users";
+import { countFeedback } from "@/lib/services/feedback";
 import { getAdminPlaceholderNotifications } from "@/lib/services/newspaper";
-import type { UserProfile, UserRole } from "@/lib/types/user";
+import { collection, query, where, getCountFromServer } from "firebase/firestore";
+import { db } from "@/lib/firebase/config";
 import { Button } from "@/components/ui/Button";
+import { StatCard, type StatAccent } from "@/components/admin/StatCard";
+import {
+  Users,
+  Mail,
+  FileText,
+  AlertTriangle,
+  ArrowUpRight,
+  FilePlus,
+  MessageSquare,
+  Newspaper as NewspaperIcon,
+} from "lucide-react";
 
-const roles: UserRole[] = ["admin", "editor", "viewer"];
+interface SectionAlert {
+  section: string;
+  label: string;
+  message: string;
+}
 
 export default function AdminPage() {
   const router = useRouter();
   const { user, loading } = useAuth();
-  const [members, setMembers] = useState<UserProfile[]>([]);
-  const [busyId, setBusyId] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [memberCount, setMemberCount] = useState(0);
+  const [subscriberCount, setSubscriberCount] = useState(0);
+  const [publishedCount, setPublishedCount] = useState(0);
+  const [feedbackCount, setFeedbackCount] = useState(0);
+  const [alerts, setAlerts] = useState<SectionAlert[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  const loadOverview = async () => {
+    try {
+      const [members, subscribersSnapshot, publishedSnapshot, notifications, newFeedback] =
+        await Promise.all([
+          listUsers(),
+          getCountFromServer(collection(db, "earlyAccessSubscribers")),
+          getCountFromServer(
+            query(collection(db, "articles"), where("status", "==", "published"))
+          ),
+          getAdminPlaceholderNotifications(),
+          countFeedback("new"),
+        ]);
+
+      setMemberCount(members.length);
+      setSubscriberCount(subscribersSnapshot.data().count);
+      setPublishedCount(publishedSnapshot.data().count);
+      setFeedbackCount(newFeedback);
+      setAlerts(
+        notifications.map((n) => ({
+          section: n.section,
+          label: n.label,
+          message: n.message,
+        }))
+      );
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to load workspace overview");
+    }
+  };
 
   useEffect(() => {
     if (!loading && !user) {
@@ -32,67 +80,70 @@ export default function AdminPage() {
     }
 
     if (!loading && user?.role === "admin") {
-      void loadMembers();
-      void loadNotifications();
+      // Data fetching pattern used across the app (see app/dashboard/page.tsx).
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      void loadOverview();
     }
   }, [loading, user, router]);
 
-  const loadMembers = async () => {
-    try {
-      const result = await listUsers();
-      setMembers(result.sort((a, b) => a.displayName.localeCompare(b.displayName)));
-    } catch (err: any) {
-      setError(err.message || "Unable to load members");
-    }
-  };
+  type StatItem = {
+  label: string;
+  value: number;
+  href: string;
+  icon: ComponentType<{ className?: string }>;
+  hint: string;
+  accent: StatAccent;
+};
 
-  const canManage = useMemo(() => user?.role === "admin", [user]);
-
-  const [sectionNotifications, setSectionNotifications] = useState<Array<{
-    section: string;
-    label: string;
-    message: string;
-  }>>([]);
-
-  const loadNotifications = async () => {
-    try {
-      const notifications = await getAdminPlaceholderNotifications();
-      setSectionNotifications(notifications.map(n => ({
-        section: n.section,
-        label: n.label,
-        message: n.message,
-      })));
-    } catch (err) {
-      console.error('Failed to load notifications:', err);
-    }
-  };
-
-  const handleRoleChange = async (member: UserProfile, role: UserRole) => {
-    if (!canManage) return;
-    setBusyId(member.id);
-    setError(null);
-    setMessage(null);
-
-    try {
-      await updateUserRole(member.id, role);
-      setMembers((current) =>
-        current.map((item) => (item.id === member.id ? { ...item, role } : item))
-      );
-      setMessage(`${member.displayName || member.email} is now ${role}.`);
-    } catch (err: any) {
-      setError(err.message || "Unable to update role");
-    } finally {
-      setBusyId(null);
-    }
-  };
-
-  const handleSignOut = async () => {
-    await signOut();
-    router.push("/");
-  };
+const stats: StatItem[] = [
+    {
+      label: "Members",
+      value: memberCount,
+      href: "/admin/users",
+      icon: Users,
+      hint: "People with an account",
+      accent: "blue",
+    },
+    {
+      label: "Subscribers",
+      value: subscriberCount,
+      href: "/admin/subscribers",
+      icon: Mail,
+      hint: "Early access sign-ups",
+      accent: "violet",
+    },
+    {
+      label: "Published Articles",
+      value: publishedCount,
+      href: "/admin/cases",
+      icon: FileText,
+      hint: "Live on the site",
+      accent: "emerald",
+    },
+    {
+      label: "New Feedback",
+      value: feedbackCount,
+      href: "/admin/feedback",
+      icon: MessageSquare,
+      hint: "Awaiting review",
+      accent: "amber",
+    },
+    {
+      label: "Placeholder Alerts",
+      value: alerts.length,
+      href: "/admin/newspaper",
+      icon: AlertTriangle,
+      hint: "Sections needing content",
+      accent: "red",
+    },
+  ];
 
   if (loading) {
-    return <div className="min-h-screen bg-neutral-50 px-6 py-24 text-sm text-neutral-600">Loading workspace…</div>;
+    return (
+      <div className="min-h-screen bg-neutral-50 px-4 py-8 text-sm text-neutral-600 sm:px-6 lg:px-10">
+        Loading workspace…
+      </div>
+    );
   }
 
   if (!user) {
@@ -101,117 +152,157 @@ export default function AdminPage() {
 
   if (user.role !== "admin") {
     return (
-      <div className="min-h-screen bg-neutral-50 px-6 py-24">
+      <div className="min-h-screen bg-neutral-50 px-4 py-8 sm:px-6 lg:px-10">
         <div className="mx-auto max-w-6xl">
-          <div className="rounded border border-red-200 bg-red-50 p-8 shadow-sm">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-8 shadow-sm">
             <h1 className="font-serif text-2xl text-neutral-900">Access Denied</h1>
             <p className="mt-3 text-sm text-neutral-600">
-              You need admin privileges to access this page.
-            </p>
-            <p className="mt-2 text-xs text-neutral-500">
-              Your current role: {user.role}
+              You need administrator access to view this workspace.
             </p>
           </div>
         </div>
       </div>
     );
   }
-
-  return (
-    <div className="min-h-screen bg-neutral-50 px-6 py-24">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8">
-        <div className="flex flex-col gap-4 rounded border border-neutral-200 bg-white p-8 shadow-sm md:flex-row md:items-end md:justify-between">
+return (
+    <div className="min-h-screen bg-neutral-50 px-4 py-8 sm:px-6 lg:px-10">
+      <div className="mx-auto max-w-7xl">
+        {/* Header */}
+        <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.25em] text-[#8B1E1E]">Editorial admin</p>
-            <h1 className="mt-2 font-serif text-3xl text-neutral-900">Admin workspace</h1>
-            <p className="mt-3 max-w-2xl text-sm text-neutral-600">
-              Manage access, review contributors, and keep the publication flow moving.
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#8B1E1E]">
+              Admin Console
+            </p>
+            <h1 className="mt-2 font-serif text-4xl text-neutral-900">Overview</h1>
+            <p className="mt-2 text-sm text-neutral-600">
+              Welcome back,{" "}
+              <span className="font-medium text-neutral-800">
+                {user.displayName || user.email}
+              </span>
+              . Here’s what’s happening across the publication.
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <Link href="/" className="text-sm text-neutral-700 underline underline-offset-4">
-              View site
+          <div className="flex flex-wrap gap-3">
+            <Link href="/admin/cases/new">
+              <Button variant="primary">
+                <FilePlus className="mr-2 h-4 w-4" />
+                New Article
+              </Button>
             </Link>
-            <Button variant="outline" onClick={handleSignOut}>
-              Sign out
-            </Button>
+            <Link href="/" target="_blank" rel="noopener noreferrer">
+              <Button variant="outline">
+                <NewspaperIcon className="mr-2 h-4 w-4" />
+                View Public Site
+              </Button>
+            </Link>
           </div>
+        </header>
+
+        {error ? (
+          <p className="mt-6 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-[#8B1E1E]">
+            {error}
+          </p>
+        ) : null}
+
+        {/* Stats */}
+        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {stats.map((stat) => (
+            <StatCard
+              key={stat.label}
+              label={stat.label}
+              value={stat.value}
+              href={stat.href}
+              icon={stat.icon}
+              hint={stat.hint}
+              accent={stat.accent}
+            />
+          ))}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <div className="rounded border border-neutral-200 bg-white p-8 shadow-sm">
+        <div className="mt-8 grid gap-6 lg:grid-cols-3">
+          {/* Section placeholders */}
+          <section className="rounded-lg border border-yellow-200 bg-yellow-50 p-6 shadow-sm lg:col-span-2">
             <div className="flex items-center justify-between">
-              <div>
-                <h2 className="font-serif text-2xl text-neutral-900">Contributor access</h2>
-                <p className="mt-2 text-sm text-neutral-600">Assign roles from admin to editor or viewer.</p>
-              </div>
+              <h2 className="font-serif text-xl text-yellow-900">
+                Section placeholders
+              </h2>
+              <span className="rounded-full bg-yellow-200 px-3 py-1 text-xs font-semibold text-yellow-800">
+                {alerts.length} pending
+              </span>
             </div>
-            {message ? <p className="mt-4 text-sm text-[#8B1E1E]">{message}</p> : null}
-            {error ? <p className="mt-4 text-sm text-[#8B1E1E]">{error}</p> : null}
-            <div className="mt-6 space-y-4">
-              {members.map((member) => (
-                <div key={member.id} className="flex flex-col gap-3 rounded border border-neutral-200 p-4 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <p className="font-medium text-neutral-900">{member.displayName || member.email}</p>
-                    <p className="text-sm text-neutral-600">{member.email}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <select
-                      value={member.role}
-                      onChange={(event) => handleRoleChange(member, event.target.value as UserRole)}
-                      className="rounded border border-neutral-300 bg-white px-3 py-2 text-sm"
-                      disabled={busyId === member.id}
-                    >
-                      {roles.map((role) => (
-                        <option key={role} value={role}>
-                          {role}
-                        </option>
-                      ))}
-                    </select>
-                    <span className="text-xs uppercase tracking-[0.25em] text-neutral-500">{busyId === member.id ? "Saving…" : "Role"}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+            <p className="mt-2 text-sm text-yellow-700">
+              These newspaper sections still need an article assigned.
+            </p>
 
-          <div className="space-y-6">
-            <div className="rounded border border-yellow-200 bg-yellow-50 p-6 shadow-sm">
-              <h2 className="font-serif text-2xl text-yellow-900">⚠️ Placeholder Alerts</h2>
-              <p className="mt-2 text-sm text-yellow-700">Sections that need content assigned.</p>
-              {sectionNotifications.length > 0 ? (
-                <div className="mt-4 space-y-3">
-                  {sectionNotifications.map((notification) => (
-                    <div key={notification.section} className="rounded border border-yellow-300 bg-white p-3">
-                      <p className="font-medium text-yellow-900">{notification.label}</p>
-                      <p className="mt-1 text-xs text-yellow-700">{notification.message}</p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="mt-4 text-sm text-yellow-600">All sections have content assigned. Great job!</p>
-              )}
-              <div className="mt-4">
-                <Link href="/admin/newspaper" className="text-sm text-[#8B1E1E] underline underline-offset-4">
-                  Manage newspaper layout →
-                </Link>
-              </div>
+            {alerts.length > 0 ? (
+              <ul className="mt-4 space-y-3">
+                {alerts.map((notification) => (
+                  <li
+                    key={notification.section}
+                    className="rounded-lg border border-yellow-300 bg-white p-4"
+                  >
+                    <p className="font-medium text-yellow-900">
+                      {notification.label}
+                    </p>
+                    <p className="mt-1 text-xs text-yellow-700">
+                      {notification.message}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-4 text-sm text-yellow-600">
+                All sections have content assigned. Great job!
+              </p>
+            )}
+
+            <Link
+              href="/admin/newspaper"
+              className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-[#8B1E1E] underline underline-offset-4 hover:text-[#8B1E1E]/80"
+            >
+              Manage newspaper layout <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          </section>
+
+          {/* Quick actions */}
+          <section className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
+            <h2 className="font-serif text-xl text-neutral-900">Quick actions</h2>
+            <p className="mt-2 text-sm text-neutral-600">
+              Jump straight to the tools you use most.
+            </p>
+            <div className="mt-4 flex flex-col gap-3">
+              <Link href="/admin/cases" className="block">
+                <Button variant="outline" className="w-full">
+                  <FileText className="mr-2 h-4 w-4" /> Manage articles
+                </Button>
+              </Link>
+              <Link href="/admin/cases/new" className="block">
+                <Button variant="outline" className="w-full">
+                  <FilePlus className="mr-2 h-4 w-4" /> Create article
+                </Button>
+              </Link>
+              <Link href="/admin/newspaper" className="block">
+                <Button variant="outline" className="w-full">
+                  <NewspaperIcon className="mr-2 h-4 w-4" /> Manage newspaper layout
+                </Button>
+              </Link>
+              <Link href="/admin/subscribers" className="block">
+                <Button variant="outline" className="w-full">
+                  <Mail className="mr-2 h-4 w-4" /> View subscribers
+                </Button>
+              </Link>
+              <Link href="/admin/feedback" className="block">
+                <Button variant="outline" className="w-full">
+                  <MessageSquare className="mr-2 h-4 w-4" /> Review feedback
+                </Button>
+              </Link>
+              <Link href="/admin/users" className="block">
+                <Button variant="outline" className="w-full">
+                  <Users className="mr-2 h-4 w-4" /> Manage members & roles
+                </Button>
+              </Link>
             </div>
-            <div className="rounded border border-neutral-200 bg-white p-8 shadow-sm">
-              <h2 className="font-serif text-2xl text-neutral-900">Quick actions</h2>
-              <div className="mt-4 flex flex-col gap-3">
-                <Link href="/admin/newspaper">
-                  <Button variant="outline" className="w-full">Manage Newspaper Layout</Button>
-                </Link>
-                <Link href="/admin/cases/new">
-                  <Button variant="outline" className="w-full">Create article</Button>
-                </Link>
-                <Link href="/admin/subscribers">
-                  <Button variant="outline" className="w-full">View subscribers</Button>
-                </Link>
-              </div>
-            </div>
-          </div>
+          </section>
         </div>
       </div>
     </div>

@@ -73,7 +73,7 @@ export default function AdminCasesPage() {
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-neutral-50 px-6 py-24 text-sm text-neutral-600">Loading…</div>;
+    return <div className="min-h-screen bg-neutral-50 px-4 py-8 sm:px-6 lg:px-8 text-sm text-neutral-600">Loading…</div>;
   }
 
   if (!user || (user.role !== "admin" && user.role !== "editor")) {
@@ -81,7 +81,7 @@ export default function AdminCasesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 px-6 py-24">
+    <div className="min-h-screen bg-neutral-50 px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div>

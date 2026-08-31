@@ -3,9 +3,9 @@ import { Playfair_Display, Inter } from "next/font/google";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { NotificationProvider } from "@/components/providers/NotificationProvider";
-import DisclaimerBanner from "@/components/home/DisclaimerBanner";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/ui/Footer";
+import { PublicOnly } from "@/components/layout/PublicOnly";
 
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css";
@@ -41,10 +41,13 @@ export default function RootLayout({
         <QueryProvider>
           <AuthProvider>
             <NotificationProvider>
-              <DisclaimerBanner />
-              <Header />
+              <PublicOnly>
+                <Header />
+              </PublicOnly>
               <main className="flex-1">{children}</main>
-              <Footer />
+              <PublicOnly>
+                <Footer />
+              </PublicOnly>
             </NotificationProvider>
           </AuthProvider>
           <Analytics/>

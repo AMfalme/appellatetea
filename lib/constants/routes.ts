@@ -24,6 +24,9 @@ export const ROUTES = {
   ADMIN_AUTHORS: '/admin/authors',
   ADMIN_SETTINGS: '/admin/settings',
   ADMIN_NEWSPAPER: '/admin/newspaper',
+  ADMIN_USERS: '/admin/users',
+  ADMIN_SUBSCRIBERS: '/admin/subscribers',
+  ADMIN_FEEDBACK: '/admin/feedback',
 } as const;
 
 export const CASE_STATUSES = {

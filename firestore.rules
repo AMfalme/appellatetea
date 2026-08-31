@@ -55,6 +55,12 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /feedback/{messageId} {
+      allow create: if true;
+      allow read: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+
     match /auditLogs/{logId} {
       allow read: if isAdmin();
       allow create: if isAdmin();

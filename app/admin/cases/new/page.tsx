@@ -112,7 +112,7 @@ export default function CreateArticlePage() {
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-neutral-50 px-6 py-24 text-sm text-neutral-600">Loading…</div>;
+    return <div className="min-h-screen bg-neutral-50 px-4 py-8 sm:px-6 lg:px-8 text-sm text-neutral-600">Loading…</div>;
   }
 
   if (!user || (user.role !== "admin" && user.role !== "editor")) {
@@ -120,7 +120,7 @@ export default function CreateArticlePage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 px-6 py-24">
+    <div className="min-h-screen bg-neutral-50 px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl">
         <div className="mb-8">
           <p className="text-sm uppercase tracking-[0.25em] text-[#8B1E1E]">Content Management</p>

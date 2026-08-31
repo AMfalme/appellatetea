@@ -168,7 +168,7 @@ export default function NewspaperAdminPage() {
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-neutral-50 px-6 py-24 text-sm text-neutral-600">Loading workspace…</div>;
+    return <div className="min-h-screen bg-neutral-50 px-4 py-8 sm:px-6 lg:px-8 text-sm text-neutral-600">Loading workspace…</div>;
   }
 
   if (!user || (user.role !== "admin" && user.role !== "editor")) {
@@ -176,7 +176,7 @@ export default function NewspaperAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 px-6 py-24">
+    <div className="min-h-screen bg-neutral-50 px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto flex max-w-6xl flex-col gap-8">
         <div className="flex flex-col gap-4 rounded border border-neutral-200 bg-white p-8 shadow-sm">
           <div>
