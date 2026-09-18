@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Trash2 } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { getPublishedArticles, getDraftArticles } from "@/lib/services/articles";
+import { deleteArticle, getDraftArticles, getPublishedArticles } from "@/lib/services/articles";
 import type { Article } from "@/lib/types/article";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { Modal } from "@/components/ui/Modal";
 
 export default function AdminCasesPage() {
   const router = useRouter();
@@ -15,6 +17,63 @@ export default function AdminCasesPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [filter, setFilter] = useState<'all' | 'published' | 'pending' | 'draft'>('all');
   const [loadingArticles, setLoadingArticles] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<Article | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const loadArticles = async () => {
+    setLoadingArticles(true);
+    try {
+      let fetched: Article[] = [];
+
+      if (filter === 'published') {
+        fetched = await getPublishedArticles(50);
+      } else if (filter === 'draft' || filter === 'pending') {
+        const drafts = await getDraftArticles(50);
+        fetched = filter === 'pending'
+          ? drafts.filter(a => a.status === 'pending_review')
+          : drafts.filter(a => a.status === 'draft');
+      } else {
+        const [published, drafts] = await Promise.all([
+          getPublishedArticles(50),
+          getDraftArticles(50),
+        ]);
+        fetched = [...published, ...drafts];
+      }
+
+      setArticles(fetched.sort((a, b) =>
+        new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+      ));
+    } catch (err: any) {
+      console.error('Failed to load articles:', err);
+    } finally {
+      setLoadingArticles(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteArticle(deleteTarget.id);
+      setDeleteTarget(null);
+      await loadArticles();
+    } catch (err: any) {
+      setDeleteError(err.message || "Failed to delete article");
+      setDeleting(false);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    const styles = {
+      published: 'bg-green-100 text-green-800',
+      pending_review: 'bg-yellow-100 text-yellow-800',
+      draft: 'bg-gray-100 text-gray-800',
+      archived: 'bg-red-100 text-red-800',
+    };
+    return styles[status as keyof typeof styles] || styles.draft;
+  };
 
   useEffect(() => {
     if (!loading && !user) {
@@ -31,46 +90,6 @@ export default function AdminCasesPage() {
       loadArticles();
     }
   }, [loading, user, router, filter]);
-
-  const loadArticles = async () => {
-    setLoadingArticles(true);
-    try {
-      let fetched: Article[] = [];
-      
-      if (filter === 'published') {
-        fetched = await getPublishedArticles(50);
-      } else if (filter === 'draft' || filter === 'pending') {
-        const drafts = await getDraftArticles(50);
-        fetched = filter === 'pending' 
-          ? drafts.filter(a => a.status === 'pending_review')
-          : drafts.filter(a => a.status === 'draft');
-      } else {
-        const [published, drafts] = await Promise.all([
-          getPublishedArticles(50),
-          getDraftArticles(50),
-        ]);
-        fetched = [...published, ...drafts];
-      }
-      
-      setArticles(fetched.sort((a, b) => 
-        new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
-      ));
-    } catch (err: any) {
-      console.error('Failed to load articles:', err);
-    } finally {
-      setLoadingArticles(false);
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    const styles = {
-      published: 'bg-green-100 text-green-800',
-      pending_review: 'bg-yellow-100 text-yellow-800',
-      draft: 'bg-gray-100 text-gray-800',
-      archived: 'bg-red-100 text-red-800',
-    };
-    return styles[status as keyof typeof styles] || styles.draft;
-  };
 
   if (loading) {
     return <div className="min-h-screen bg-neutral-50 px-4 py-8 sm:px-6 lg:px-8 text-sm text-neutral-600">Loading…</div>;
@@ -135,9 +154,19 @@ export default function AdminCasesPage() {
                     <Link href={`/admin/cases/${article.id}`}>
                       <Button variant="outline" className="w-full">Edit</Button>
                     </Link>
+                    {user?.role === 'admin' && (
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => setDeleteTarget(article)}
+                        aria-label={`Delete ${article.title}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                     {article.status === 'pending_review' && user?.role === 'admin' && (
-                      <Button 
-                        variant="primary" 
+                      <Button
+                        variant="primary"
                         className="w-full"
                         onClick={async () => {
                           // TODO: Implement publish action
@@ -151,7 +180,7 @@ export default function AdminCasesPage() {
                 </div>
               </Card>
             ))}
-            
+
             {articles.length === 0 && (
               <div className="mt-12 text-center">
                 <p className="text-sm text-neutral-600">No articles found.</p>
@@ -163,6 +192,45 @@ export default function AdminCasesPage() {
           </div>
         )}
       </div>
+
+      <Modal
+        isOpen={!!deleteTarget}
+        onClose={() => {
+          if (!deleting) setDeleteTarget(null);
+        }}
+        title="Delete article?"
+      >
+        <p className="text-sm text-neutral-600">
+          Are you sure you want to delete{' '}
+          <strong className="text-neutral-900">{deleteTarget?.title}</strong>?
+          This will remove it from the public site and move it to archived status.
+        </p>
+        {deleteError && (
+          <div className="mt-3 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+            {deleteError}
+          </div>
+        )}
+        <div className="mt-4 flex gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            disabled={deleting}
+            onClick={() => setDeleteTarget(null)}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            className="flex-1"
+            disabled={deleting}
+            onClick={handleDelete}
+          >
+            {deleting ? 'Deleting...' : 'Delete'}
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

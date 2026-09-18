@@ -192,8 +192,11 @@ export async function updateArticle(id: string, data: Partial<Article>): Promise
 export async function deleteArticle(id: string): Promise<void> {
   const docRef = doc(db, COLLECTION, id);
   
-  // Soft delete by setting live to false
+    // Soft delete: archive the article (status -> 'archived') and mark it not live so it
+  // no longer appears on the public site (public queries filter by status === 'published').
+  // The document is retained in Firestore so admins can review deleted content.
   await updateDoc(docRef, {
+    status: 'archived' as Article['status'],
     live: false,
     updatedAt: new Date(),
   });

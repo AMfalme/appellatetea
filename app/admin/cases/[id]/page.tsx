@@ -1,18 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { use, useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { Trash2 } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { getArticleById, updateArticle } from "@/lib/services/articles";
+import {
+  deleteArticle,
+  getArticleById,
+  getArticleBySlug,
+  updateArticle,
+} from "@/lib/services/articles";
 import type { Article } from "@/lib/types/article";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { Modal } from "@/components/ui/Modal";
 
-export default function EditArticlePage({ params }: { params: { id: string } }) {
+export default function EditArticlePage({ params }: { params: Promise<{ id: string }> }) {
+  // In Next.js 16+ route params are a Promise and must be resolved with React's `use`.
+  // `useParams` is kept as a fallback so the segment is still available even if the
+  // server did not pass `params` down to this client component.
+  const resolvedParams = use(params);
+  const hookParams = useParams<{ id: string }>();
+  const rawId = resolvedParams?.id ?? hookParams?.id;
+  const id = Array.isArray(rawId) ? rawId[0] : rawId ?? "";
   const router = useRouter();
   const { user, loading } = useAuth();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadingArticle, setLoadingArticle] = useState(Boolean(id));
+  const [articleMissing, setArticleMissing] = useState(!id);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [article, setArticle] = useState<Article | null>(null);
   const [formData, setFormData] = useState({
     title: '',
@@ -25,42 +45,66 @@ export default function EditArticlePage({ params }: { params: { id: string } }) 
     live: true,
   });
 
+  const loadArticle = useCallback(async (articleId: string) => {
+    setLoadingArticle(true);
+    setArticleMissing(false);
+    setError(null);
+
+    try {
+      // The route segment is normally the Firestore document id, but older links may
+      // still use the article slug, so fall back to a slug lookup before giving up.
+      let data = await getArticleById(articleId);
+      if (!data) {
+        data = await getArticleBySlug(articleId);
+      }
+
+      if (!data) {
+        setArticleMissing(true);
+        return;
+      }
+
+      setArticle(data);
+      setFormData({
+        title: data.title,
+        excerpt: data.excerpt,
+        body: data.body || data.content || '',
+        category: data.category || 'Constitutional Law',
+        authorName: data.authorName || 'Editorial Desk',
+        readingTime: data.readingTime || 8,
+        status: data.status,
+        live: data.live ?? true,
+      });
+    } catch (err: any) {
+      setError(err?.message || "Failed to load article");
+    } finally {
+      setLoadingArticle(false);
+    }
+  }, []);
+
   useEffect(() => {
-    if (!loading && !user) {
+    if (loading) {
+      return;
+    }
+
+    if (!user) {
       router.replace("/auth/login");
       return;
     }
 
-    if (!loading && user && user.role !== "admin" && user.role !== "editor") {
+    if (user.role !== "admin" && user.role !== "editor") {
       router.replace("/");
       return;
     }
 
-    if (params.id) {
-      loadArticle(params.id);
+    if (!id) {
+      // Nothing to load; the render already reflects the missing-article state.
+      return;
     }
-  }, [loading, user, router, params.id]);
 
-  const loadArticle = async (id: string) => {
-    try {
-      const data = await getArticleById(id);
-      if (data) {
-        setArticle(data);
-        setFormData({
-          title: data.title,
-          excerpt: data.excerpt,
-          body: data.body || data.content || '',
-          category: data.category || 'Constitutional Law',
-          authorName: data.authorName || 'Editorial Desk',
-          readingTime: data.readingTime || 8,
-          status: data.status,
-          live: data.live ?? true,
-        });
-      }
-    } catch (err: any) {
-      setError(err.message || "Failed to load article");
-    }
-  };
+    // Data fetching pattern used across the app (see app/dashboard/page.tsx).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadArticle(id);
+  }, [loading, user, router, id, loadArticle]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,14 +116,30 @@ export default function EditArticlePage({ params }: { params: { id: string } }) 
         ...formData,
         slug: formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
         published: formData.status === 'published',
-        publishedAt: formData.status === 'published' ? new Date().toISOString() : undefined,
+        // Keep the original publication date when the article stays published.
+        publishedAt: formData.status === 'published'
+          ? article?.publishedAt || new Date().toISOString()
+          : undefined,
       };
 
-      await updateArticle(params.id, articleData);
+      await updateArticle(id, articleData);
       router.push("/admin/cases");
     } catch (err: any) {
       setError(err.message || "Failed to update article");
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await deleteArticle(id);
+      setShowDeleteModal(false);
+      router.push("/admin/cases");
+    } catch (err: any) {
+      setDeleteError(err.message || "Failed to delete article");
+      setDeleting(false);
     }
   };
 
@@ -91,8 +151,32 @@ export default function EditArticlePage({ params }: { params: { id: string } }) 
     return null;
   }
 
-  if (!article) {
-    return <div className="min-h-screen bg-neutral-50 px-4 py-8 sm:px-6 lg:px-8 text-sm text-neutral-600">Article not found</div>;
+  if (loadingArticle) {
+    return <div className="min-h-screen bg-neutral-50 px-4 py-8 sm:px-6 lg:px-8 text-sm text-neutral-600">Loading article…</div>;
+  }
+
+  if (articleMissing || !article) {
+    return (
+      <div className="min-h-screen bg-neutral-50 px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-3xl">
+          <p className="text-sm uppercase tracking-[0.25em] text-[#8B1E1E]">Content Management</p>
+          <h1 className="mt-2 font-serif text-3xl text-neutral-900">Article not found</h1>
+          <p className="mt-2 text-sm text-neutral-600">
+            {error ?? 'This article may have been removed or the link is out of date.'}
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            {error && id && (
+              <Button variant="primary" onClick={() => void loadArticle(id)}>
+                Try again
+              </Button>
+            )}
+            <Link href="/admin/cases">
+              <Button variant="outline">Back to articles</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -213,16 +297,69 @@ export default function EditArticlePage({ params }: { params: { id: string } }) 
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <Button type="submit" variant="primary" disabled={saving}>
-              {saving ? 'Saving...' : 'Save Changes'}
-            </Button>
-            <Button type="button" variant="outline" onClick={() => router.push("/admin/cases")}>
-              Cancel
-            </Button>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex gap-3">
+              <Button type="submit" variant="primary" disabled={saving}>
+                {saving ? 'Saving...' : 'Save Changes'}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => router.push("/admin/cases")}>
+                Cancel
+              </Button>
+            </div>
+            {user?.role === 'admin' && (
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => {
+                  setDeleteError(null);
+                  setShowDeleteModal(true);
+                }}
+              >
+                <Trash2 className="mr-2 h-4 w-4" /> Delete
+              </Button>
+            )}
           </div>
         </form>
       </div>
+
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          if (!deleting) setShowDeleteModal(false);
+        }}
+        title="Delete article?"
+      >
+        <p className="text-sm text-neutral-600">
+          Are you sure you want to delete{' '}
+          <strong className="text-neutral-900">{article?.title || 'this article'}</strong>?
+          This will remove it from the public site and move it to archived status.
+        </p>
+        {deleteError && (
+          <div className="mt-3 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+            {deleteError}
+          </div>
+        )}
+        <div className="mt-4 flex gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex-1"
+            disabled={deleting}
+            onClick={() => setShowDeleteModal(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            className="flex-1"
+            disabled={deleting}
+            onClick={handleDelete}
+          >
+            {deleting ? 'Deleting...' : 'Delete'}
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }
