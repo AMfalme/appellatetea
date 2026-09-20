@@ -4,6 +4,7 @@ export interface ArticleImage {
   publicId: string;
   url: string;
   alt?: string;
+  caption?: string;
 }
 
 export interface ArticleBase {

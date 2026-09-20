@@ -61,15 +61,22 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
         {/* Hero Image */}
         {article.heroImage?.url && (
-          <div className="relative w-full aspect-[16/9] mb-10 overflow-hidden rounded">
-            <Image
-              src={article.heroImage.url}
-              alt={article.heroImage.alt || article.title}
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
+          <figure className="mb-10">
+            <div className="relative w-full aspect-[16/9] overflow-hidden rounded">
+              <Image
+                src={article.heroImage.url}
+                alt={article.heroImage.alt || article.title}
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
+            {article.heroImage.caption && (
+              <figcaption className="mt-3 text-sm italic text-neutral-500">
+                {article.heroImage.caption}
+              </figcaption>
+            )}
+          </figure>
         )}
 
         {/* Excerpt */}

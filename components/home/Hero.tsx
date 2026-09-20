@@ -55,7 +55,7 @@ export default function Hero() {
               {/* Catchy Newspaper-Style Hero Image Wrapper */}
               <div className="relative w-full aspect-[4/3] rounded bg-neutral-100 overflow-hidden border border-neutral-200 shadow-sm mt-8">
               <Image
-                src={displayArticle.heroImage?.url || "/media/justice.png"}
+                src={"/media/justice.png"}
                 alt={displayArticle.heroImage?.alt || displayArticle.title}
                 fill
                 className="object-cover grayscale hover:grayscale-0 transition-all duration-500 ease-in-out"
@@ -65,11 +65,11 @@ export default function Hero() {
               </div>
               
               <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl text-neutral-900 leading-[1.1] tracking-tight">
-                Law is more than precedent.
+                {"Law is more than precedent."}
               </h1>
               
               <p className="font-serif italic text-xl text-neutral-500 leading-relaxed border-l-2 border-neutral-200 pl-4">
-                It is the story of society in motion.
+                {"It is the story of society in motion."}
               </p>
 
               
@@ -95,7 +95,7 @@ export default function Hero() {
                 </h2>
 
                 <p className="text-neutral-600 text-lg md:text-xl leading-relaxed max-w-3xl">
-                  {displayArticle.excerpt}
+                  {displayArticle.excerpt || "Discover the latest insights and in-depth analysis on the most pressing legal issues shaping our world today."}
                 </p>
 
                 <div className="inline-flex items-center gap-3 text-[#8B1E1E] font-semibold tracking-wider text-sm uppercase pt-4 border-b border-transparent group-hover:border-[#8B1E1E] transition-all">
