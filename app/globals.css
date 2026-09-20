@@ -32,65 +32,83 @@
   --font-mono: var(--font-geist-mono);
 }
 
-* {
-  border-color: var(--border);
+/*
+ * Defaults live in `@layer base` on purpose.
+ * Tailwind v4 declares `@layer theme, base, components, utilities;`, and
+ * utilities are emitted into `@layer utilities`. Because unlayered CSS always
+ * beats layered CSS, these rules used to override every Tailwind colour class
+ * (`text-white`, `text-neutral-300`, ...) and made text on dark sections
+ * (bg-neutral-950, bg-[#8B1E1E]) render dark-on-dark. Inside `@layer base`
+ * a utility class correctly wins, while these still act as fallbacks.
+ */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Editorial Typography */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-playfair), Georgia, 'Times New Roman', serif;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    /* No colour on purpose: headings inherit the surrounding text colour so
+       they stay readable on dark sections (bg-neutral-950, bg-[#8B1E1E], ...). */
+  }
+
+  h1 { font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 800; }
+  h2 { font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 700; }
+  h3 { font-size: clamp(1.5rem, 3vw, 2.5rem); font-weight: 600; }
+
+  p, li, span, div {
+    font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+    /* No colour on purpose (see the headings note above). */
+  }
+
+  a {
+    color: #990000;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  a:hover {
+    color: #660000;
+  }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Font helpers kept next to Tailwind's generated font-* utilities, so
+   responsive overrides such as `font-sans md:font-serif` keep working. */
+@layer utilities {
+  .font-serif { font-family: var(--font-playfair), Georgia, 'Times New Roman', serif; }
+  .font-sans { font-family: var(--font-inter), Arial, Helvetica, sans-serif; }
 }
 
-/* Editorial Typography */
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-playfair), Georgia, 'Times New Roman', serif;
-  color: #000000;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-}
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
 
-h1 { font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 800; }
-h2 { font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 700; }
-h3 { font-size: clamp(1.5rem, 3vw, 2.5rem); font-weight: 600; }
+  ::selection {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+  }
 
-p, li, span, div {
-  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
-  color: #111827;
-}
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
 
-a {
-  color: #990000;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-a:hover {
-  color: #660000;
-}
-
-.font-serif { font-family: var(--font-playfair), Georgia, 'Times New Roman', serif; }
-.font-sans { font-family: var(--font-inter), Arial, Helvetica, sans-serif; }
-
-html {
-  scroll-behavior: smooth;
-}
-
-::selection {
-  background-color: var(--primary);
-  color: var(--primary-foreground);
-}
-
-:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-
-/* Smooth transitions for interactive elements */
-button,
-a {
-  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  /* Smooth transitions for interactive elements */
+  button,
+  a {
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  }
 }

@@ -78,7 +78,7 @@ export default function EditorsPick() {
 
           </p>
 
-          <div className="mt-10 text-sm uppercase tracking-[0.3em] text-neutral-500">
+          <div className="mt-10 text-sm uppercase tracking-[0.3em] text-neutral-400">
 
             — Editorial Board
 
@@ -107,9 +107,12 @@ export default function EditorsPick() {
 
               </p>
 
-              <h3 className="mt-5 font-serif text-3xl leading-snug group-hover:text-[#8B1E1E] transition-colors">
+              <h3 className="mt-5 font-serif text-3xl leading-snug">
 
-                <Link href="#">
+                <Link
+                  href="#"
+                  className="text-white transition-colors group-hover:text-[#e98b82]"
+                >
 
                   {essay.title}
 

@@ -50,7 +50,7 @@ export default function Hero() {
                 <span className="uppercase tracking-[0.3em] text-xs font-bold text-[#8B1E1E]">
                   01 • The Lead
                 </span>
-                <PlaceholderBadge />
+                {/* <PlaceholderBadge /> */}
               </div>
               {/* Catchy Newspaper-Style Hero Image Wrapper */}
               <div className="relative w-full aspect-[4/3] rounded bg-neutral-100 overflow-hidden border border-neutral-200 shadow-sm mt-8">

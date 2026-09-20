@@ -4,7 +4,7 @@ import { QueryProvider } from "@/components/providers/QueryProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { NotificationProvider } from "@/components/providers/NotificationProvider";
 import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/ui/Footer";
+import FooterCTA from "@/components/home/FooterCTA";
 import { PublicOnly } from "@/components/layout/PublicOnly";
 
 import { Analytics } from "@vercel/analytics/next"
@@ -46,7 +46,7 @@ export default function RootLayout({
               </PublicOnly>
               <main className="flex-1">{children}</main>
               <PublicOnly>
-                <Footer />
+                <FooterCTA  />
               </PublicOnly>
             </NotificationProvider>
           </AuthProvider>

@@ -127,6 +127,7 @@ export default function FooterCTA() {
                     border-b
                     border-neutral-800
                     pb-3
+                    text-neutral-300
                     hover:text-white
                     transition-colors
                   "
@@ -162,23 +163,38 @@ export default function FooterCTA() {
 
             <div className="space-y-5">
 
-              <Link href="#">
+              <Link
+                href="#"
+                className="text-neutral-300 transition-colors hover:text-white"
+              >
                 About
               </Link>
 
-              <Link href="#">
+              <Link
+                href="#"
+                className="text-neutral-300 transition-colors hover:text-white"
+              >
                 Editorial Policy
               </Link>
 
-              <Link href="#">
+              <Link
+                href="#"
+                className="text-neutral-300 transition-colors hover:text-white"
+              >
                 Submit a Topic
               </Link>
 
-              <Link href="#">
+              <Link
+                href="#"
+                className="text-neutral-300 transition-colors hover:text-white"
+              >
                 Contact
               </Link>
 
-              <Link href="#">
+              <Link
+                href="#"
+                className="text-neutral-300 transition-colors hover:text-white"
+              >
                 Privacy Policy
               </Link>
 
@@ -204,7 +220,7 @@ export default function FooterCTA() {
 
             <a
               href="mailto:reader@appellatetea.com"
-              className="flex items-center gap-3 hover:text-white"
+              className="flex items-center gap-3 text-neutral-300 hover:text-white"
             >
 
               <Mail size={17} />
@@ -215,7 +231,7 @@ export default function FooterCTA() {
 
             <a
               href="mailto:appellatetea@gmail.com"
-              className="flex items-center gap-3 mt-5 hover:text-white"
+              className="flex items-center gap-3 mt-5 text-neutral-300 hover:text-white"
             >
 
               <Mail size={17} />
@@ -224,7 +240,7 @@ export default function FooterCTA() {
 
             </a>
 
-            <p className="mt-10 leading-8 text-neutral-500">
+            <p className="mt-10 leading-8 text-neutral-400">
 
               Independent digital publication.
               Published from Africa for readers
@@ -239,7 +255,7 @@ export default function FooterCTA() {
 
         {/* Bottom */}
 
-        <div className="border-t border-neutral-800 mt-20 pt-8 flex flex-col lg:flex-row justify-between gap-5 text-sm text-neutral-500">
+        <div className="border-t border-neutral-800 mt-20 pt-8 flex flex-col lg:flex-row justify-between gap-5 text-sm text-neutral-400">
 
           <span>
 
@@ -250,7 +266,7 @@ export default function FooterCTA() {
 
           <span>
 
-            Digital Publication • Est. 2026 • Schema.org/DigitalPublication
+            Digital Publication • Est. 2026 •
 
           </span>
 
