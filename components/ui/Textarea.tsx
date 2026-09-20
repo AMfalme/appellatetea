@@ -1,32 +1,29 @@
-import { InputHTMLAttributes, forwardRef } from 'react';
+import { TextareaHTMLAttributes, forwardRef } from 'react';
 import { cn } from '@/lib/utils/cn';
 import { Field, type FieldProps } from './Field';
 import { ACCENT_CONTROL, CONTROL_BASE, CONTROL_ERROR, type FormAccent } from './formTokens';
 
-export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
   helperText?: string;
   accent?: FormAccent;
-  /** Forwarded to `Field` when `label` is set. */
   hint?: FieldProps['hint'];
   labelAccessory?: FieldProps['labelAccessory'];
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>(
-  (
-    { className, label, error, helperText, accent = 'indigo', hint, labelAccessory, id, ...props },
-    ref
-  ) => {
-    const inputId = id || label?.toLowerCase().replace(/\s/g, '-');
+const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className, label, error, helperText, accent = 'indigo', hint, labelAccessory, id, rows = 4, ...props }, ref) => {
+    const textareaId = id || label?.toLowerCase().replace(/\s/g, '-');
 
     const control = (
-      <input
-        id={inputId}
+      <textarea
+        id={textareaId}
         ref={ref}
+        rows={rows}
         className={cn(
           CONTROL_BASE,
-          'h-11 px-4',
+          'resize-y px-4 py-3 font-normal leading-relaxed text-slate-800',
           ACCENT_CONTROL[accent],
           error && CONTROL_ERROR,
           className
@@ -44,7 +41,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         hint={hint ?? helperText}
         error={error}
         accent={accent}
-        htmlFor={inputId}
+        htmlFor={textareaId}
       >
         {control}
       </Field>
@@ -52,6 +49,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
   }
 );
 
-Input.displayName = 'Input';
+Textarea.displayName = 'Textarea';
 
-export { Input };
+export { Textarea };

@@ -7,6 +7,7 @@ import { listUsers, updateUserRole } from "@/lib/services/users";
 import { countFeedback } from "@/lib/services/feedback";
 import type { UserProfile, UserRole } from "@/lib/types/user";
 import { StatCard } from "@/components/admin/StatCard";
+import { Select } from "@/components/ui/Select";
 import { ShieldCheck, PenLine, Eye, MessageSquare } from "lucide-react";
 
 const roles: UserRole[] = ["admin", "editor", "viewer"];
@@ -216,21 +217,22 @@ return (
                           })}
                         </span>
                       ) : null}
-                      <select
+                      <Select
                         value={member.role}
                         onChange={(event) =>
                           handleRoleChange(member, event.target.value as UserRole)
                         }
                         disabled={busyId === member.id}
-                        className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60"
+                        accent="indigo"
                         aria-label={`Role for ${member.displayName || member.email}`}
+                        className="h-10 w-auto min-w-[9rem] text-xs"
                       >
                         {roles.map((role) => (
                           <option key={role} value={role}>
                             {role}
                           </option>
                         ))}
-                      </select>
+                      </Select>
                     </div>
                   </li>
                 );

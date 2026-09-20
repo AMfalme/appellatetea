@@ -3,26 +3,27 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils/cn';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  'inline-flex items-center justify-center rounded-xl font-bold tracking-wide transition-all duration-200 ' +
+    'focus-visible:outline-none focus-visible:ring-4 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
         primary:
-          'bg-blue-600 text-white hover:bg-blue-700 focus-visible:ring-blue-500',
+          'bg-[#8B1E1E] text-white hover:bg-[#731818] focus-visible:ring-[#8B1E1E]/20',
         secondary:
-          'bg-gray-200 text-gray-900 hover:bg-gray-300 focus-visible:ring-gray-500',
+          'border border-slate-200/90 bg-white text-slate-700 shadow-2xs hover:border-slate-300 hover:bg-slate-50 focus-visible:ring-slate-400/20',
         outline:
-          'border border-gray-300 bg-transparent hover:bg-gray-100 focus-visible:ring-gray-500',
+          'border border-slate-300 bg-transparent text-slate-700 hover:border-slate-400 hover:bg-slate-50 focus-visible:ring-slate-400/20',
         ghost:
-          'hover:bg-gray-100 focus-visible:ring-gray-500',
+          'text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus-visible:ring-slate-400/20',
         destructive:
-          'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500',
+          'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500/20',
       },
       size: {
-        sm: 'h-9 px-3 text-xs',
-        md: 'h-10 px-4 text-sm',
-        lg: 'h-11 px-6 text-base',
-        icon: 'h-10 w-10',
+        sm: 'px-4 py-2 text-xs',
+        md: 'px-6 py-2.5 text-xs',
+        lg: 'px-8 py-3 text-sm',
+        icon: 'h-11 w-11 p-0',
       },
     },
     defaultVariants: {

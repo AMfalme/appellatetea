@@ -3,7 +3,7 @@
 import { use, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { Trash2, X } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
 import {
   deleteArticle,
@@ -14,8 +14,25 @@ import {
 import type { Article, ArticleImage } from "@/lib/types/article";
 import { uploadToCloudinary } from "@/lib/services/cloudinary";
 import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
+import { FileDropZone } from "@/components/ui/FileDropZone";
+import { FormActions } from "@/components/ui/FormActions";
+import { FormSection } from "@/components/ui/FormSection";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { Select } from "@/components/ui/Select";
+import { Textarea } from "@/components/ui/Textarea";
+import { Toggle } from "@/components/ui/Toggle";
+
+const CATEGORY_OPTIONS = [
+  "Constitutional Law",
+  "Supreme Court",
+  "Parliament",
+  "Policy",
+  "African Development",
+  "Social Philosophy",
+  "Judicial Appointments",
+];
 
 export default function EditArticlePage({ params }: { params: Promise<{ id: string }> }) {
   // In Next.js 16+ route params are a Promise and must be resolved with React's `use`.
@@ -117,12 +134,9 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
     void loadArticle(id);
   }, [loading, user, router, id, loadArticle]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      setImagePreviewUrl(URL.createObjectURL(file));
-    }
+  const selectImageFile = (file: File) => {
+    setImageFile(file);
+    setImagePreviewUrl(URL.createObjectURL(file));
   };
 
   const clearNewImage = () => {
@@ -247,6 +261,7 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
     );
   }
 
+
   return (
     <div className="min-h-screen bg-neutral-50 px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-3xl">
@@ -257,319 +272,222 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
         </div>
 
         {error && (
-          <div className="mb-6 rounded border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          <div
+            role="alert"
+            className="mb-6 rounded-2xl border border-red-200 bg-red-50/70 px-8 py-5 text-xs font-semibold text-red-700 shadow-sm"
+          >
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto font-sans antialiased">
-  {/* Article Details */}
-  <section className="overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-b from-slate-50/80 via-white to-slate-50/40 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300">
-    <div className="border-b border-slate-200/80 bg-slate-100/70 px-8 py-5">
-      <h2 className="text-base font-bold tracking-tight text-slate-900">
-        Article Details
-      </h2>
-      <p className="mt-0.5 text-xs font-medium text-slate-500">
-        Update content, categorization, and metadata for this article.
-      </p>
-    </div>
-
-    <div className="space-y-6 p-8">
-      {/* Title */}
-      <div className="group">
-        <label className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-indigo-700 transition-colors group-focus-within:text-indigo-900">
-          Title
-        </label>
-        <Input
-          value={formData.title}
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          placeholder="Enter article title"
-          required
-          className="h-11 rounded-xl border-slate-200/90 bg-slate-50/60 px-4 text-sm font-semibold text-slate-900 shadow-2xs transition-all duration-200 placeholder:text-slate-400 placeholder:font-normal focus:border-indigo-500 focus:bg-white focus:text-indigo-950 focus:ring-4 focus:ring-indigo-500/10"
-        />
-      </div>
-
-      {/* Excerpt */}
-      <div className="group">
-        <label className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-indigo-700 transition-colors group-focus-within:text-indigo-900">
-          Excerpt
-        </label>
-        <textarea
-          value={formData.excerpt}
-          onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-          placeholder="Brief summary"
-          rows={3}
-          required
-          className="w-full resize-y rounded-xl border border-slate-200/90 bg-slate-50/60 px-4 py-3 text-sm font-normal text-slate-800 shadow-2xs outline-none transition-all duration-200 placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:text-slate-950 focus:ring-4 focus:ring-indigo-500/10"
-        />
-      </div>
-
-      {/* Body */}
-      <div className="group">
-        <label className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-indigo-700 transition-colors group-focus-within:text-indigo-900">
-          Body
-        </label>
-        <textarea
-          value={formData.body}
-          onChange={(e) => setFormData({ ...formData, body: e.target.value })}
-          placeholder="Article content"
-          rows={12}
-          required
-          className="w-full resize-y rounded-xl border border-slate-200/90 bg-slate-50/60 p-4 text-sm leading-relaxed text-slate-800 shadow-2xs outline-none transition-all duration-200 placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:text-slate-950 focus:ring-4 focus:ring-indigo-500/10"
-        />
-      </div>
-
-      {/* Category / Reading Time */}
-      <div className="grid gap-6 sm:grid-cols-2">
-        <div className="group">
-          <label className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-indigo-700 transition-colors group-focus-within:text-indigo-900">
-            Category
-          </label>
-          <div className="relative">
-            <select
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              className="w-full appearance-none rounded-xl border border-slate-200/90 bg-slate-50/60 px-4 py-2.5 pr-10 text-sm font-medium text-slate-800 shadow-2xs outline-none transition-all duration-200 focus:border-indigo-500 focus:bg-white focus:text-slate-950 focus:ring-4 focus:ring-indigo-500/10"
-            >
-              <option>Constitutional Law</option>
-              <option>Supreme Court</option>
-              <option>Parliament</option>
-              <option>Policy</option>
-              <option>African Development</option>
-              <option>Social Philosophy</option>
-              <option>Judicial Appointments</option>
-            </select>
-            <div className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div className="group">
-          <label className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-indigo-700 transition-colors group-focus-within:text-indigo-900">
-            Reading Time (min)
-          </label>
-          <Input
-            type="number"
-            value={formData.readingTime}
-            onChange={(e) => setFormData({ ...formData, readingTime: parseInt(e.target.value) || 8 })}
-            min={1}
-            className="h-10 rounded-xl border-slate-200/90 bg-slate-50/60 px-4 text-sm font-semibold text-slate-900 shadow-2xs transition-all duration-200 focus:border-indigo-500 focus:bg-white focus:text-indigo-950 focus:ring-4 focus:ring-indigo-500/10"
-          />
-        </div>
-      </div>
-
-      {/* Author Name */}
-      <div className="group">
-        <label className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-indigo-700 transition-colors group-focus-within:text-indigo-900">
-          Author Name
-        </label>
-        <Input
-          value={formData.authorName}
-          onChange={(e) => setFormData({ ...formData, authorName: e.target.value })}
-          placeholder="Enter author name"
-          className="h-11 rounded-xl border-slate-200/90 bg-slate-50/60 px-4 text-sm font-medium text-slate-800 shadow-2xs transition-all duration-200 placeholder:text-slate-400 focus:border-indigo-500 focus:bg-white focus:text-slate-950 focus:ring-4 focus:ring-indigo-500/10"
-        />
-      </div>
-    </div>
-  </section>
-
-  {/* Hero Image */}
-  <section className="overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-b from-sky-50/30 via-white to-slate-50/40 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300">
-    <div className="border-b border-slate-200/80 bg-sky-50/60 px-8 py-5">
-      <h2 className="text-base font-bold tracking-tight text-sky-950">
-        Hero Image
-      </h2>
-      <p className="mt-0.5 text-xs font-medium text-sky-800/70">
-        Upload a new file to replace the current image, or edit the alt text and caption below.
-      </p>
-    </div>
-
-    <div className="space-y-6 p-8">
-      {/* Image Preview / Frame */}
-      <div className="overflow-hidden rounded-2xl border border-sky-100 bg-sky-50/20 p-2 shadow-2xs">
-        {imagePreviewUrl || currentImage?.url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={imagePreviewUrl || currentImage?.url}
-            alt={formData.heroImageAlt || article.title}
-            className="h-48 w-full rounded-xl border border-slate-200/80 bg-white object-cover shadow-2xs"
-          />
-        ) : (
-          <div className="flex h-32 items-center justify-center rounded-xl border-2 border-dashed border-sky-200 bg-sky-50/30 text-xs font-medium text-sky-700/70">
-            No image uploaded yet
-          </div>
-        )}
-      </div>
-
-      {/* File Input */}
-      <div className="group">
-        <label
-          htmlFor="hero-image-file"
-          className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-sky-800 transition-colors group-focus-within:text-sky-950"
-        >
-          {currentImage ? 'Replace Image' : 'Image File'}
-        </label>
-        
-        <div className="relative rounded-2xl border-2 border-dashed border-sky-200 bg-sky-50/20 p-5 text-center transition-all duration-200 hover:border-sky-400 hover:bg-sky-50/40">
-          <input
-            id="hero-image-file"
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="block w-full text-xs font-medium text-slate-600 file:mr-4 file:rounded-xl file:border-0 file:bg-sky-900 file:px-4 file:py-2.5 file:text-xs file:font-semibold file:text-white file:shadow-xs hover:file:bg-sky-800 file:transition-colors cursor-pointer"
-          />
-
-          {imageFile && (
-            <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-sky-200 bg-white px-3.5 py-2 shadow-2xs">
-              <span className="truncate text-xs font-medium text-slate-700">
-                Selected: <strong className="text-slate-900">{imageFile.name}</strong>
-              </span>
-              <Button type="button" variant="ghost" size="sm" onClick={clearNewImage} className="h-7 text-xs text-rose-600 hover:bg-rose-50 hover:text-rose-700">
-                <X className="mr-1 h-3 w-3" /> Clear
-              </Button>
-            </div>
-          )}
-
-          <p className="mt-2 text-xs font-normal text-slate-500">
-            A new upload replaces the existing image (stored securely in Cloudinary).
-          </p>
-        </div>
-      </div>
-
-      {/* Image Metadata */}
-      <div className="grid gap-6 sm:grid-cols-2">
-        <div className="group">
-          <label className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-sky-800 transition-colors group-focus-within:text-sky-950">
-            Alt Text
-          </label>
-          <Input
-            value={formData.heroImageAlt}
-            onChange={(e) => setFormData({ ...formData, heroImageAlt: e.target.value })}
-            placeholder="Describe the image for screen readers"
-            className="h-11 rounded-xl border-slate-200/90 bg-sky-50/10 px-4 text-sm font-medium text-slate-800 shadow-2xs transition-all duration-200 placeholder:text-slate-400 focus:border-sky-500 focus:bg-white focus:text-slate-950 focus:ring-4 focus:ring-sky-500/10"
-          />
-          <p className="mt-1.5 text-xs text-slate-400">
-            Falls back to the existing alt text, then the article title.
-          </p>
-        </div>
-
-        <div className="group">
-          <label className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-sky-800 transition-colors group-focus-within:text-sky-950">
-            Caption
-          </label>
-          <Input
-            value={formData.heroImageCaption}
-            onChange={(e) => setFormData({ ...formData, heroImageCaption: e.target.value })}
-            placeholder="Shown beneath the image"
-            className="h-11 rounded-xl border-slate-200/90 bg-sky-50/10 px-4 text-sm font-medium text-slate-800 shadow-2xs transition-all duration-200 placeholder:text-slate-400 focus:border-sky-500 focus:bg-white focus:text-slate-950 focus:ring-4 focus:ring-sky-500/10"
-          />
-        </div>
-      </div>
-    </div>
-  </section>
-
-  {/* Status & Visibility Section */}
-  <section className="overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-b from-amber-50/30 via-white to-slate-50/40 shadow-sm transition-all duration-300 hover:shadow-md hover:border-slate-300">
-    <div className="border-b border-slate-200/80 bg-amber-50/60 px-8 py-5">
-      <h2 className="text-base font-bold tracking-tight text-amber-950">
-        Publishing Settings
-      </h2>
-      <p className="mt-0.5 text-xs font-medium text-amber-800/70">
-        Control publishing status and public visibility across platforms.
-      </p>
-    </div>
-
-    <div className="space-y-6 p-8">
-      {/* Status */}
-      <div className="group">
-        <label className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-amber-800 transition-colors group-focus-within:text-amber-950">
-          Status
-        </label>
-        <div className="relative">
-          <select
-            value={formData.status}
-            onChange={(e) => setFormData({ ...formData, status: e.target.value as Article['status'] })}
-            className="w-full appearance-none rounded-xl border border-slate-200/90 bg-amber-50/20 px-4 py-2.5 pr-10 text-sm font-medium text-slate-800 shadow-2xs outline-none transition-all duration-200 focus:border-amber-500 focus:bg-white focus:text-slate-950 focus:ring-4 focus:ring-amber-500/10"
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <FormSection
+            title="Article Details"
+            description="Update the main content and editorial information for this article."
+            eyebrow="01"
           >
-            <option value="draft">Draft</option>
-            <option value="pending_review">Pending Review</option>
-            <option value="published">Published</option>
-            <option value="archived">Archived</option>
-          </select>
-          <div className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400">
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-        </div>
-      </div>
+            <Field label="Title">
+              <Input
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                placeholder="Enter a compelling article title..."
+                required
+              />
+            </Field>
 
-      {/* Public Visibility Toggle */}
-      <div className="flex items-center justify-between rounded-xl border border-emerald-200/80 bg-gradient-to-r from-emerald-50/50 via-white to-emerald-50/30 p-5 shadow-2xs">
-        <div>
-          <p className="text-sm font-bold text-emerald-950">
-            Public visibility
-          </p>
-          <p className="mt-0.5 text-xs font-medium text-emerald-800/70">
-            Live (visible to public)
-          </p>
-        </div>
+            <Field label="Excerpt" hint="Appears in listings and search results.">
+              <Textarea
+                value={formData.excerpt}
+                onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
+                placeholder="Write a brief, engaging summary..."
+                rows={3}
+                required
+              />
+            </Field>
 
-        <label className="relative inline-flex cursor-pointer items-center">
-          <input
-            type="checkbox"
+            <Field label="Body" labelAccessory={<span>{formData.body.length} characters</span>}>
+              <Textarea
+                value={formData.body}
+                onChange={(e) => setFormData({ ...formData, body: e.target.value })}
+                placeholder="Write your main article content here..."
+                rows={14}
+                required
+                className="font-normal leading-relaxed"
+              />
+            </Field>
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              <Field label="Category">
+                <Select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                >
+                  {CATEGORY_OPTIONS.map((option) => (
+                    <option key={option}>{option}</option>
+                  ))}
+                </Select>
+              </Field>
+
+              <Field label="Reading Time">
+                <div className="relative">
+                  <Input
+                    type="number"
+                    value={formData.readingTime}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        readingTime: parseInt(e.target.value) || 8,
+                      })
+                    }
+                    min={1}
+                    className="pr-24"
+                  />
+
+                  <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400">
+                    minutes
+                  </span>
+                </div>
+              </Field>
+            </div>
+
+            <Field label="Author Name">
+              <Input
+                value={formData.authorName}
+                onChange={(e) => setFormData({ ...formData, authorName: e.target.value })}
+                placeholder="Enter author name"
+              />
+            </Field>
+          </FormSection>
+
+
+          <FormSection
+            title="Hero Image"
+            description="Review the current image, replace it, or clear a staged upload."
+            eyebrow="02"
+            accent="sky"
+          >
+            <Field label="Current Image" accent="sky">
+              <div className="rounded-2xl border border-sky-200 bg-sky-50/20 p-4">
+                <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl border border-sky-200 bg-white">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={imagePreviewUrl ?? currentImage?.url ?? "/media/justice.png"}
+                    alt={formData.heroImageAlt || currentImage?.alt || formData.title}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+
+                <p className="mt-3 text-xs font-medium text-sky-800/70">
+                  {imagePreviewUrl
+                    ? "New image staged — save to upload it to Cloudinary."
+                    : "Currently published image."}
+                </p>
+              </div>
+            </Field>
+
+            <FileDropZone
+              id="hero-image-file"
+              inputRef={fileInputRef}
+              onFileSelect={selectImageFile}
+              label={imageFile ? imageFile.name : "Choose a replacement image"}
+              hint="Upload high-resolution media. Stored securely in Cloudinary."
+              accessory={
+                imageFile ? (
+                  <Button type="button" variant="secondary" size="sm" onClick={clearNewImage}>
+                    Clear selected file
+                  </Button>
+                ) : null
+              }
+            />
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              <Field
+                label="Alt Text"
+                accent="sky"
+                hint="Falls back to the article title when left empty."
+              >
+                <Input
+                  value={formData.heroImageAlt}
+                  onChange={(e) => setFormData({ ...formData, heroImageAlt: e.target.value })}
+                  placeholder="Describe image accessibility..."
+                  accent="sky"
+                />
+              </Field>
+
+              <Field label="Caption" accent="sky">
+                <Input
+                  value={formData.heroImageCaption}
+                  onChange={(e) => setFormData({ ...formData, heroImageCaption: e.target.value })}
+                  placeholder="Caption shown beneath image"
+                  accent="sky"
+                />
+              </Field>
+            </div>
+          </FormSection>
+
+
+          <FormSection
+            title="Publishing Settings"
+            description="Control publishing status and public visibility across platforms."
+            eyebrow="03"
+            accent="amber"
+          >
+            <Field label="Status">
+              <Select
+                value={formData.status}
+                onChange={(e) =>
+                  setFormData({ ...formData, status: e.target.value as Article["status"] })
+                }
+                accent="amber"
+              >
+                <option value="draft">Draft</option>
+                <option value="pending_review">Pending Review</option>
+                <option value="published">Published</option>
+                <option value="archived">Archived</option>
+              </Select>
+            </Field>
+          </FormSection>
+
+          <Toggle
             id="live"
+            name="live"
             checked={formData.live}
-            onChange={(e) => setFormData({ ...formData, live: e.target.checked })}
-            className="peer sr-only"
+            onChange={(checked) => setFormData({ ...formData, live: checked })}
+            label="Public visibility"
+            description="Live (visible to public readers across platforms)."
           />
-          <div className="h-6 w-11 rounded-full bg-slate-200 transition-colors duration-200 ease-in-out peer-checked:bg-emerald-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-500/10 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-sm after:transition-transform after:duration-200 ease-out peer-checked:after:translate-x-full" />
-        </label>
-      </div>
-    </div>
-  </section>
 
-  {/* Form Actions */}
-  <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-200/80">
-    <div className="flex items-center gap-3">
-      <Button 
-        type="submit" 
-        variant="primary" 
-        disabled={saving}
-        className="rounded-xl bg-indigo-600 px-6 py-2.5 text-xs font-bold tracking-wide text-white shadow-sm hover:bg-indigo-700 transition-all duration-200 disabled:opacity-50"
-      >
-        {saving ? 'Saving...' : 'Save Changes'}
-      </Button>
+          <FormActions
+            primary={
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.push("/admin/cases")}
+                >
+                  Cancel
+                </Button>
 
-      <Button 
-        type="button" 
-        variant="outline" 
-        onClick={() => router.push("/admin/cases")}
-        className="rounded-xl border-slate-200 px-5 py-2.5 text-xs font-bold tracking-wide text-slate-700 hover:bg-slate-100 transition-all duration-200"
-      >
-        Cancel
-      </Button>
-    </div>
-
-    {user?.role === 'admin' && (
-      <Button
-        type="button"
-        variant="destructive"
-        onClick={() => {
-          setDeleteError(null);
-          setShowDeleteModal(true);
-        }}
-        className="rounded-xl bg-rose-600 px-5 py-2.5 text-xs font-bold tracking-wide text-white shadow-xs hover:bg-rose-700 transition-all duration-200"
-      >
-        <Trash2 className="mr-2 h-4 w-4" /> Delete Article
-      </Button>
-    )}
-  </div>
-</form>
+                <Button type="submit" variant="primary" isLoading={saving}>
+                  {saving ? "Saving..." : "Save Changes"}
+                </Button>
+              </>
+            }
+          >
+            {user?.role === "admin" && (
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => {
+                  setDeleteError(null);
+                  setShowDeleteModal(true);
+                }}
+              >
+                <Trash2 className="mr-2 h-4 w-4" /> Delete Article
+              </Button>
+            )}
+          </FormActions>
+        </form>
       </div>
 
       <Modal
@@ -580,36 +498,39 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
         title="Delete article?"
       >
         <p className="text-sm text-neutral-600">
-          Are you sure you want to delete{' '}
-          <strong className="text-neutral-900">{article?.title || 'this article'}</strong>?
-          This will remove it from the public site and move it to archived status.
+          Are you sure you want to delete{" "}
+          <strong className="text-neutral-900">{article?.title || "this article"}</strong>? This
+          will remove it from the public site and move it to archived status.
         </p>
+
         {deleteError && (
-          <div className="mt-3 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+          <div
+            role="alert"
+            className="mt-3 rounded-xl border border-red-200 bg-red-50/70 px-4 py-3 text-xs font-semibold text-red-700"
+          >
             {deleteError}
           </div>
         )}
-        <div className="mt-4 flex gap-3">
+
+        <FormActions
+          className="mt-4"
+          primary={
+            <Button variant="destructive" size="sm" disabled={deleting} onClick={handleDelete}>
+              {deleting ? "Deleting..." : "Delete"}
+            </Button>
+          }
+        >
           <Button
             variant="outline"
             size="sm"
-            className="flex-1"
             disabled={deleting}
             onClick={() => setShowDeleteModal(false)}
           >
             Cancel
           </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            className="flex-1"
-            disabled={deleting}
-            onClick={handleDelete}
-          >
-            {deleting ? 'Deleting...' : 'Delete'}
-          </Button>
-        </div>
+        </FormActions>
       </Modal>
     </div>
   );
 }
+

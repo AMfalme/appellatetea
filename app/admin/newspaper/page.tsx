@@ -10,7 +10,6 @@ import { SECTION_LABELS, SECTION_DESCRIPTIONS } from "@/lib/types/newspaper";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
-import { Input } from "@/components/ui/Input";
 
 const PLACEHOLDER_TITLES: Record<NewspaperSection, string> = {
   lead: 'No Lead Story Assigned',
@@ -329,7 +328,7 @@ export default function NewspaperAdminPage() {
               ))}
             </div>
           </div>
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-end gap-3 border-t border-slate-200/80 pt-4">
             <Button
               variant="ghost"
               onClick={() => {
